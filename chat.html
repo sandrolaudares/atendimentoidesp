@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat IGC | Suporte IDE-SP / SIMM</title>
+  <meta name="description" content="Canal de comunicação entre Fapetec e IGC SP.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    /* ── Variáveis IGC ── */
+    :root {
+      --igc-azul-escuro:  #1a3a5c;
+      --igc-azul-medio:   #1e5f9a;
+      --igc-azul-claro:   #2d7ec4;
+      --igc-azul-suave:   #e8f2fb;
+      --igc-verde-sp:     #2e7d32;
+      --igc-vermelho:     #c62828;
+      --igc-vermelho-claro: #ffebee;
+      --igc-amarelo:      #f57f17;
+      --igc-amarelo-claro:#fff8e1;
+      --igc-cinza-escuro: #2c3e50;
+      --igc-cinza-medio:  #546e7a;
+      --igc-cinza-claro:  #90a4ae;
+      --igc-cinza-bg:     #f5f7fa;
+      --igc-cinza-borda:  #cfd8dc;
+      --igc-branco:       #ffffff;
+      --font-primary: 'Source Sans Pro', 'Segoe UI', sans-serif;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+      --transition: all 0.2s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: var(--font-primary);
+      background: var(--igc-cinza-bg);
+      color: var(--igc-cinza-escuro);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Barra Gov ── */
+    .barra-gov {
+      background: var(--igc-cinza-escuro);
+      padding: 5px 16px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.80);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .barra-gov span { text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+    .barra-gov .barra-links { display: flex; gap: 14px; }
+    .barra-gov .barra-links a {
+      color: rgba(255,255,255,0.70);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      text-decoration: none;
+    }
+    .barra-gov .barra-links a:hover { color: #fff; }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--igc-azul-escuro) 0%, var(--igc-azul-medio) 100%);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+    .header-logo-wrapper {
+      background: rgba(255,255,255,0.12);
+      border-radius: var(--radius-md);
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 52px;
+    }
+    .header-logo-text {
+      font-size: 19px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .header-logo-text span {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      display: block;
+      opacity: 0.85;
+      margin-top: 1px;
+      text-transform: uppercase;
+    }
+    .header-divider {
+      width: 2px;
+      height: 38px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 1px;
+    }
+    .header-info { flex: 1; }
+    .header-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .header-subtitle {
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+      margin-top: 1px;
+    }
+    .header-badge {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.92);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4caf50;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ── Layout principal ── */
+    .chat-layout {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar de salas ── */
+    .chat-sidebar {
+      width: 220px;
+      background: var(--igc-azul-escuro);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .sidebar-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.45);
+      padding: 16px 14px 8px;
+    }
+    .sala-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.72);
+      font-family: var(--font-primary);
+      transition: var(--transition);
+      text-align: left;
+      width: 100%;
+      border-left: 3px solid transparent;
+      position: relative;
+    }
+    .sala-btn:hover {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.95);
+    }
+    .sala-btn.ativa {
+      background: rgba(255,255,255,0.13);
+      color: #fff;
+      border-left-color: rgba(255,255,255,0.70);
+      font-weight: 700;
+    }
+    .sala-btn .sala-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .sala-btn.ativa .sala-icon {
+      background: rgba(255,255,255,0.20);
+    }
+    .sala-nao-lidas {
+      margin-left: auto;
+      background: var(--igc-vermelho);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 8px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* Info do usuário no rodapé da sidebar */
+    .sidebar-user {
+      margin-top: auto;
+      border-top: 1px solid rgba(255,255,255,0.10);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-nome {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-perfil {
+      font-size: 11px;
+      color: rgba(255,255,255,0.55);
+      margin-top: 1px;
+    }
+    .user-trocar-btn {
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: var(--radius-sm);
+      color: rgba(255,255,255,0.70);
+      cursor: pointer;
+      padding: 4px 7px;
+      font-size: 11px;
+      transition: var(--transition);
+    }
+    .user-trocar-btn:hover { background: rgba(255,255,255,0.20); color: #fff; }
+
+    /* ── Área principal ── */
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--igc-cinza-bg);
+    }
+
+    /* ── Sub-header da sala ── */
+    .sala-header {
+      background: #fff;
+      border-bottom: 1px solid var(--igc-cinza-borda);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+    .sala-header-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      background: var(--igc-azul-suave);
+      color: var(--igc-azul-medio);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .sala-header-nome {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--igc-azul-escuro);
+    }
+    .sala-header-desc {
+      font-size: 12.5px;
+      color: var(--igc-cinza-medio);
+      margin-top: 1px;
+    }
+    .sala-header-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sala-participantes {
+      font-size: 12px;
+      color: var(--igc-cinza-medio);
+      background: var(--igc-cinza-bg);
+      border: 1px solid var(--igc-cinza-borda);
+      border-radius: 20px;
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ── Área de Mensagens ── */
+    .mensagens-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      scroll-behavior: smooth;
+    }
+    .mensagens-area::-webkit-scrollbar { width: 6px; }
+    .mensagens-area::-webkit-scrollbar-track { background: transparent; }
+    .mensagens-area::-webkit-scrollbar-thumb { background: var(--igc-cinza-borda); border-radius: 3px; }
+
+    /* ── Separador de Data ── */
+    .separador-data {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 16px 0 8px;
+      color: var(--igc-cinza-claro);
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .separador-data::before,
+    .separador-data::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--igc-cinza-borda);
+    }
+
+    /* ── Mensagem ── */
+    .msg-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      animation: msgIn 0.18s ease both;
+    }
+    .msg-row.msg-eu { flex-direction: row-reverse; }
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Agrupamento: mensagens seguidas do mesmo autor */
+    .msg-row.msg-agrupada { margin-top: 2px; }
+    .msg-row.msg-agrupada .msg-avatar { visibility: hidden; }
+    .msg-row.msg-agrupada .msg-meta { display: none; }
+
+    .msg-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .msg-body { display: flex; flex-direction: column; gap: 3px; max-width: 72%; }
+    .msg-row.msg-eu .msg-body { align-items: flex-end; }
+
+    .msg-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+    .msg-nome { font-size: 12px; font-weight: 700; }
+    .msg-perfil-badge {
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 6px;
+    }
+    .msg-ref-badge {
+      font-size: 10.5px;
+      background: var(--igc-amarelo-claro);
+      color: var(--igc-amarelo);
+      padding: 1px 7px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    .msg-bubble {
+      padding: 9px 14px;
+      border-radius: 16px 16px 16px 4px;
+      word-break: break-word;
+      line-height: 1.55;
+      font-size: 14px;
+      max-width: 100%;
+    }
+    .msg-row.msg-eu .msg-bubble {
+      border-radius: 16px 16px 4px 16px;
+    }
+    .msg-bubble p { margin: 0; }
+    .msg-hora {
+      font-size: 11px;
+      color: var(--igc-cinza-claro);
+      padding: 0 2px;
+    }
+
+    /* ── Estados ── */
+    .estado-vazio {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      color: var(--igc-cinza-claro);
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .estado-vazio i { font-size: 48px; opacity: 0.30; }
+    .estado-vazio h3 { font-size: 16px; font-weight: 600; color: var(--igc-cinza-medio); }
+    .estado-vazio p { font-size: 13.5px; line-height: 1.6; max-width: 280px; }
+
+    .estado-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 32px;
+      color: var(--igc-cinza-medio);
+      font-size: 13.5px;
+    }
+
+    /* ── Barra de protocolo referenciado ── */
+    .protocolo-ref-bar {
+      background: var(--igc-amarelo-claro);
+      border-top: 1px solid #ffe082;
+      border-bottom: 1px solid #ffe082;
+      padding: 7px 20px;
+      font-size: 12.5px;
+      color: #7a5700;
+      font-weight: 600;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .protocolo-ref-bar button {
+      margin-left: auto;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #7a5700;
+      font-size: 14px;
+      opacity: 0.6;
+      transition: opacity 0.15s;
+    }
+    .protocolo-ref-bar button:hover { opacity: 1; }
+
+    /* ── Input ── */
+    .input-area {
+      background: #fff;
+      border-top: 1px solid var(--igc-cinza-borda);
+      padding: 14px 20px;
+      flex-shrink: 0;
+    }
+    .input-erro {
+      font-size: 12.5px;
+      color: var(--igc-vermelho);
+      margin-bottom: 8px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .msg-input {
+      flex: 1;
+      border: 1.5px solid var(--igc-cinza-borda);
+      border-radius: var(--radius-lg);
+      padding: 10px 16px;
+      font-size: 14px;
+      font-family: var(--font-primary);
+      resize: none;
+      min-height: 42px;
+      max-height: 120px;
+      line-height: 1.5;
+      color: var(--igc-cinza-escuro);
+      background: var(--igc-cinza-bg);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .msg-input:focus {
+      outline: none;
+      border-color: var(--igc-azul-claro);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(45,126,196,0.12);
+    }
+    .msg-input::placeholder { color: var(--igc-cinza-claro); }
+    .enviar-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--igc-azul-medio);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 2px 8px rgba(30,95,154,0.30);
+    }
+    .enviar-btn:hover:not(:disabled) {
+      background: var(--igc-azul-claro);
+      transform: scale(1.08);
+      box-shadow: 0 4px 14px rgba(30,95,154,0.40);
+    }
+    .enviar-btn:disabled { opacity: 0.40; cursor: not-allowed; transform: none; }
+    .enviar-btn:focus-visible { outline: 3px solid var(--igc-azul-claro); outline-offset: 3px; }
+
+    .input-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 7px;
+    }
+    .input-hint {
+      font-size: 11.5px;
+      color: var(--igc-cinza-claro);
+    }
+    .input-hint kbd {
+      font-size: 10px;
+      background: #f0f0f0;
+      padding: 1px 5px;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      font-family: var(--font-primary);
+    }
+    .char-counter {
+      font-size: 11.5px;
+      color: var(--igc-cinza-claro);
+    }
+
+    /* ── Overlay de Login ── */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, var(--igc-azul-escuro) 0%, var(--igc-azul-medio) 100%);
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-card {
+      background: #fff;
+      border-radius: var(--radius-xl);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.30);
+      padding: 36px 32px 30px;
+      width: 100%;
+      max-width: 420px;
+      animation: loginIn 0.28s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes loginIn {
+      from { opacity: 0; transform: translateY(-24px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .login-logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .login-logo-box {
+      display: inline-flex;
+      background: var(--igc-azul-escuro);
+      border-radius: var(--radius-lg);
+      padding: 10px 16px;
+      align-items: center;
+      gap: 10px;
+    }
+    .login-logo-text {
+      font-size: 22px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .login-logo-text span {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 2px;
+      display: block;
+      opacity: 0.80;
+      text-transform: uppercase;
+    }
+    .login-logo-divider {
+      width: 1px;
+      height: 32px;
+      background: rgba(255,255,255,0.25);
+    }
+    .login-logo-chat {
+      font-size: 13px;
+      color: rgba(255,255,255,0.85);
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .login-titulo {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--igc-azul-escuro);
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    .login-sub {
+      font-size: 13.5px;
+      color: var(--igc-cinza-medio);
+      text-align: center;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--igc-cinza-escuro);
+      margin-bottom: 5px;
+    }
+    .form-label .req { color: var(--igc-vermelho); }
+    .form-control {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--igc-cinza-borda);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-family: var(--font-primary);
+      color: var(--igc-cinza-escuro);
+      background: var(--igc-cinza-bg);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--igc-azul-claro);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(45,126,196,0.12);
+    }
+    .form-erro {
+      font-size: 12px;
+      color: var(--igc-vermelho);
+      margin-top: 4px;
+      display: none;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--igc-azul-escuro) 0%, var(--igc-azul-medio) 100%);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.15s, transform 0.15s;
+      margin-top: 6px;
+    }
+    .login-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .login-btn:focus-visible { outline: 3px solid var(--igc-azul-claro); outline-offset: 3px; }
+    .login-aviso {
+      font-size: 12px;
+      color: var(--igc-cinza-claro);
+      text-align: center;
+      margin-top: 16px;
+      line-height: 1.6;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 5px;
+    }
+    .login-aviso i { margin-top: 2px; flex-shrink: 0; }
+
+    /* ── Perfis coloridos ── */
+    .perfil-select-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .perfil-card {
+      border: 2px solid var(--igc-cinza-borda);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      cursor: pointer;
+      background: #fff;
+      transition: var(--transition);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .perfil-card:hover { border-color: var(--igc-azul-claro); background: var(--igc-azul-suave); }
+    .perfil-card.selecionado { border-color: var(--igc-azul-medio); background: var(--igc-azul-suave); box-shadow: 0 0 0 3px rgba(30,95,154,0.12); }
+    .perfil-card .perfil-card-icon { font-size: 20px; }
+    .perfil-card .perfil-card-nome { font-size: 12px; font-weight: 700; color: var(--igc-azul-escuro); }
+    .perfil-card-check {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--igc-azul-medio); color: #fff;
+      font-size: 10px; display: none;
+      align-items: center; justify-content: center;
+      margin-top: 2px;
+    }
+    .perfil-card.selecionado .perfil-card-check { display: flex; }
+
+    /* ── Toast ── */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 600;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: var(--igc-cinza-escuro);
+      color: #fff;
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      font-size: 13.5px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: toastIn 0.2s ease both;
+      max-width: 300px;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .toast.toast-error { background: var(--igc-vermelho); }
+    .toast.toast-success { background: var(--igc-verde-sp); }
+
+    /* ── Responsivo ── */
+    @media (max-width: 600px) {
+      .chat-sidebar { width: 58px; }
+      .sala-btn .sala-nome { display: none; }
+      .sala-btn { justify-content: center; padding: 10px 0; border-left: none; border-bottom: 3px solid transparent; }
+      .sala-btn.ativa { border-left: none; border-bottom-color: rgba(255,255,255,0.70); }
+      .sidebar-section-title { display: none; }
+      .sidebar-user .user-info,
+      .sidebar-user .user-trocar-btn { display: none; }
+      .sidebar-user { justify-content: center; padding: 10px 0; }
+      .login-card { padding: 28px 20px 24px; }
+      .perfil-select-wrapper { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Barra Gov ── -->
+<div class="barra-gov" role="banner">
+  <img src="assets/img/logo-governo-do-estado-sp.webp" alt="Governo do Estado de São Paulo" style="height:20px;margin-right:6px;vertical-align:middle;">
+  <span>Governo do Estado de São Paulo</span>
+  <div class="barra-links">
+    <a href="https://www.igc.sp.gov.br" target="_blank" rel="noopener">IGC</a>
+    <a href="https://www.idesp.sp.gov.br" target="_blank" rel="noopener">IDE-SP</a>
+    <a href="index.html" target="_blank" rel="noopener">Suporte</a>
+  </div>
+</div>
+
+<!-- ── Header ── -->
+<header>
+  <div class="header-logo-wrapper" title="Instituto Geográfico e Cartográfico de São Paulo">
+    <img src="assets/img/logo1.jpg" alt="IGC SP" style="height:36px;border-radius:4px;">
+  </div>
+  <div class="header-divider" aria-hidden="true"></div>
+  <div class="header-info">
+    <div class="header-title">Chat IGC / IDE-SP</div>
+    <div class="header-subtitle">Comunicação entre Fapetec e IGC SP</div>
+  </div>
+  <div class="header-badge">
+    <div class="status-dot" title="Sistema operacional"></div>
+    <span id="usuarioHeaderNome">Online</span>
+  </div>
+</header>
+
+<!-- ── Layout ── -->
+<div class="chat-layout">
+
+  <!-- ── Sidebar ── -->
+  <nav class="chat-sidebar" aria-label="Canais do chat" id="chatSidebar">
+    <div class="sidebar-section-title">Canais</div>
+    <div id="listaSalas"></div>
+
+    <!-- Usuário logado (rodapé sidebar) -->
+    <div class="sidebar-user" id="sidebarUser">
+      <div class="user-avatar" id="sidebarAvatar" style="background:#1e5f9a">?</div>
+      <div class="user-info">
+        <div class="user-nome" id="sidebarNome">—</div>
+        <div class="user-perfil" id="sidebarPerfil">—</div>
+      </div>
+      <button class="user-trocar-btn" onclick="trocarUsuario()" title="Trocar identificação">
+        <i class="fas fa-exchange-alt"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── Área principal ── -->
+  <main class="chat-main">
+
+    <!-- Sub-header da sala ativa -->
+    <div class="sala-header" id="salaHeader">
+      <div class="sala-header-icon" id="salaHeaderIcon"><i class="fas fa-comments"></i></div>
+      <div>
+        <div class="sala-header-nome" id="salaHeaderNome">Fapetec</div>
+        <div class="sala-header-desc" id="salaHeaderDesc">Canal da equipe Fapetec</div>
+      </div>
+      <div class="sala-header-actions">
+        <div class="sala-participantes" id="salaParticipantes">
+          <i class="fas fa-circle" style="font-size:8px;color:#4caf50"></i>
+          <span>Online</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensagens -->
+    <div class="mensagens-area" id="mensagensArea" role="log" aria-live="polite" aria-label="Mensagens">
+      <div class="estado-loading" id="estadoLoading">
+        <i class="fas fa-spinner fa-spin"></i> Carregando mensagens…
+      </div>
+    </div>
+
+    <!-- Barra de protocolo referenciado -->
+    <div class="protocolo-ref-bar" id="protocoloRefBar">
+      <i class="fas fa-ticket-alt"></i>
+      <span id="protocoloRefTexto"></span>
+      <button onclick="limparProtocoloRef()" aria-label="Remover referência"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Input -->
+    <div class="input-area">
+      <div class="input-erro" id="inputErro" role="alert">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="inputErroTexto"></span>
+      </div>
+      <div class="input-row">
+        <textarea
+          class="msg-input"
+          id="msgInput"
+          placeholder="Digite sua mensagem… (Enter para enviar, Shift+Enter para nova linha)"
+          rows="1"
+          maxlength="1000"
+          aria-label="Campo de mensagem"
+          autocomplete="off"></textarea>
+        <button class="enviar-btn" id="enviarBtn" onclick="enviarMensagem()" aria-label="Enviar mensagem" title="Enviar (Enter)">
+          <i class="fas fa-paper-plane" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="input-footer">
+        <span class="input-hint">
+          <kbd>Enter</kbd> enviar &nbsp;·&nbsp; <kbd>Shift+Enter</kbd> nova linha
+        </span>
+        <span class="char-counter" id="charCounter">0/1000</span>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── Overlay de Login ── -->
+<div class="login-overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-label="Identificação para o chat">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-box">
+        <div class="login-logo-text">IGC<span>SP</span></div>
+        <div class="login-logo-divider"></div>
+        <div class="login-logo-chat"><i class="fas fa-comments" style="font-size:18px;opacity:0.85"></i><br>Chat</div>
+      </div>
+    </div>
+
+    <h1 class="login-titulo">Bem-vindo ao Chat IGC</h1>
+    <p class="login-sub">Identifique-se para participar das conversas entre Fapetec e IGC SP.</p>
+
+    <div class="form-group">
+      <label class="form-label" for="loginNome">Nome completo <span class="req">*</span></label>
+      <input type="text" class="form-control" id="loginNome" placeholder="Seu nome completo" autocomplete="name"
+             onkeydown="if(event.key==='Enter') document.getElementById('loginEmail').focus()">
+      <div class="form-erro" id="erroNome">Por favor, informe seu nome.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="loginEmail">E-mail <span class="req">*</span></label>
+      <input type="email" class="form-control" id="loginEmail" placeholder="seu@email.gov.br" autocomplete="email"
+             onkeydown="if(event.key==='Enter') confirmarLogin()">
+      <div class="form-erro" id="erroEmail">Por favor, informe um e-mail válido.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Perfil</label>
+      <div class="perfil-select-wrapper" id="perfilWrapper">
+        <div class="perfil-card selecionado" data-perfil="fapetec" onclick="selecionarPerfil(this)">
+          <div class="perfil-card-icon">🔬</div>
+          <div class="perfil-card-nome">Fapetec</div>
+          <div class="perfil-card-check"><i class="fas fa-check"></i></div>
+        </div>
+        <div class="perfil-card" data-perfil="igc" onclick="selecionarPerfil(this)">
+          <div class="perfil-card-icon">🏛️</div>
+          <div class="perfil-card-nome">IGC SP</div>
+          <div class="perfil-card-check"><i class="fas fa-check"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="login-btn" onclick="confirmarLogin()">
+      <i class="fas fa-sign-in-alt"></i> Entrar no Chat
+    </button>
+
+    <p class="login-aviso">
+      <i class="fas fa-lock"></i>
+      Seus dados são usados apenas para identificação nas mensagens. O histórico de conversas é guardado por data e hora.
+    </p>
+  </div>
+</div>
+
+<!-- ── Toasts ── -->
+<div class="toast-container" id="toastContainer" aria-live="assertive"></div>
+
+<script>
+/* =====================================================
+   Chat IGC/IDE-SP — chat.html
+   Lógica completa de mensagens, salas, login e polling
+   ===================================================== */
+
+// ── Configurações ──────────────────────────────────────
+const POLL_INTERVAL = 5000;    // ms
+const MAX_MSG      = 1000;     // caracteres
+const PAGE_SIZE    = 80;       // msgs por load
+
+const SALAS = [
+  { id: 'fapetec',  nome: 'Fapetec',  icon: 'fa-flask',     desc: 'Canal da equipe Fapetec' },
+  { id: 'igc_sp',   nome: 'IGC SP',   icon: 'fa-building',  desc: 'Canal da equipe IGC SP' },
+];
+
+const PERFIS = {
+  fapetec:      { label: 'Fapetec',   cor: '#7b1fa2', bg: '#f3e5f5',   emoji: '🔬' },
+  igc:          { label: 'IGC SP',    cor: '#1e5f9a', bg: '#e8f2fb',   emoji: '🏛️' },
+};
+
+// ── Estado ─────────────────────────────────────────────
+let usuario       = null;
+let salaAtual     = 'fapetec';
+let mensagens     = {};       // { [salaId]: [] }
+let naoLidas      = {};       // { [salaId]: count }
+let pollTimer     = null;
+let enviando      = false;
+let protocoloRef  = '';
+let perfilSelecionado = 'fapetec';
+
+// ── Utilitários ────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function iniciais(nome) {
+  if (!nome) return '?';
+  const p = nome.trim().split(' ');
+  return p.length === 1
+    ? p[0][0].toUpperCase()
+    : (p[0][0] + p[p.length-1][0]).toUpperCase();
+}
+
+function getPerfil(tipo) {
+  return PERFIS[tipo] || PERFIS.fapetec;
+}
+
+function getSala(id) {
+  return SALAS.find(s => s.id === id) || SALAS[0];
+}
+
+function formatHora(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  if (isNaN(d)) return '';
+  const hoje  = new Date();
+  const ontem = new Date(hoje); ontem.setDate(ontem.getDate() - 1);
+  const hora  = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+  if (d.toDateString() === hoje.toDateString())  return `hoje às ${hora}`;
+  if (d.toDateString() === ontem.toDateString()) return `ontem às ${hora}`;
+  return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' }) + ` às ${hora}`;
+}
+
+function formatDataSep(ts) {
+  const d = new Date(ts);
+  const hoje  = new Date();
+  const ontem = new Date(hoje); ontem.setDate(ontem.getDate() - 1);
+  if (d.toDateString() === hoje.toDateString())  return 'Hoje';
+  if (d.toDateString() === ontem.toDateString()) return 'Ontem';
+  return d.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+}
+
+// ── Persistência local ──────────────────────────────────
+function salvarUsuario(u) {
+  localStorage.setItem('igc_chat_usuario', JSON.stringify(u));
+}
+function carregarUsuario() {
+  try { return JSON.parse(localStorage.getItem('igc_chat_usuario') || 'null'); }
+  catch { return null; }
+}
+
+// ── API ────────────────────────────────────────────────
+// Usa URL relativa pura, igual ao padrão do restante do sistema (main.js)
+async function apiListar(sala) {
+  const r = await fetch(`tables/chat_mensagens?page=1&limit=${PAGE_SIZE}&sort=created_at`);
+  if (!r.ok) throw new Error(`HTTP ${r.status} ao listar mensagens`);
+  const json = await r.json();
+  return (json.data || []).filter(m => m.sala_id === sala);
+}
+
+async function apiEnviar(payload) {
+  const r = await fetch('tables/chat_mensagens', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  if (!r.ok) {
+    let detalhe = '';
+    try { const j = await r.json(); detalhe = JSON.stringify(j); } catch (ex) { detalhe = ex.message; }
+    throw new Error(`HTTP ${r.status}: ${detalhe}`);
+  }
+  return r.json();
+}
+
+// ── Carregar mensagens ──────────────────────────────────
+async function carregarMensagens(sala, append = false) {
+  try {
+    const dados = await apiListar(sala);
+    if (!mensagens[sala]) mensagens[sala] = [];
+
+    if (append) {
+      const existIds = new Set(mensagens[sala].map(m => m.id));
+      const novas = dados.filter(m => !existIds.has(m.id));
+      if (novas.length > 0) {
+        mensagens[sala] = [...mensagens[sala], ...novas];
+        if (sala === salaAtual) {
+          renderNovas(novas);
+        } else {
+          naoLidas[sala] = (naoLidas[sala] || 0) + novas.length;
+          renderSalas();
+        }
+      }
+    } else {
+      mensagens[sala] = dados;
+      if (sala === salaAtual) renderTudo();
+    }
+  } catch (e) {
+    console.warn('[Chat] Erro ao carregar:', e.message);
+  }
+}
+
+// ── Render completo ─────────────────────────────────────
+function renderTudo() {
+  const area = document.getElementById('mensagensArea');
+  area.innerHTML = '';
+  // estadoLoading já foi removido com o innerHTML = ''
+
+  const msgs = mensagens[salaAtual] || [];
+  if (msgs.length === 0) {
+    area.innerHTML = `
+      <div class="estado-vazio">
+        <i class="fas fa-comments"></i>
+        <h3>Sem mensagens ainda</h3>
+        <p>Seja o primeiro a escrever neste canal!</p>
+      </div>`;
+    return;
+  }
+
+  renderBlocoMsgs(area, msgs, false);
+  area.scrollTop = area.scrollHeight;
+}
+
+// ── Render novas (append) ───────────────────────────────
+function renderNovas(novas) {
+  const area = document.getElementById('mensagensArea');
+  // remover estado vazio se existir
+  const vazio = area.querySelector('.estado-vazio');
+  if (vazio) vazio.remove();
+
+  const naFundo = area.scrollHeight - area.scrollTop - area.clientHeight < 100;
+  renderBlocoMsgs(area, novas, true);
+  if (naFundo) area.scrollTop = area.scrollHeight;
+}
+
+// ── Render bloco ────────────────────────────────────────
+function renderBlocoMsgs(container, msgs, append) {
+  let ultimaData = append
+    ? (container.dataset.ultimaData || '')
+    : '';
+  let ultimoAutor = append
+    ? (container.dataset.ultimoAutor || '')
+    : '';
+
+  msgs.forEach(msg => {
+    const ts = msg.data_envio ? new Date(msg.data_envio).getTime() : (msg.created_at || Date.now());
+    const dStr = new Date(ts).toDateString();
+
+    let mudouData = false;
+    if (dStr !== ultimaData) {
+      const sep = document.createElement('div');
+      sep.className = 'separador-data';
+      sep.innerHTML = `<span>${formatDataSep(ts)}</span>`;
+      container.appendChild(sep);
+      ultimaData = dStr;
+      ultimoAutor = ''; // resetar agrupamento ao mudar de data
+      mudouData = true;
+    }
+
+    const souEu = usuario && msg.autor_email === usuario.email;
+    const perfil = getPerfil(msg.autor_tipo);
+    // Agrupar mensagens do mesmo autor seguidas, desde que não haja separador de data
+    const agrupada = !mudouData && (ultimoAutor === msg.autor_email);
+    ultimoAutor = msg.autor_email;
+
+    const row = document.createElement('div');
+    row.className = `msg-row${souEu ? ' msg-eu' : ''}${agrupada ? ' msg-agrupada' : ''}`;
+    row.dataset.id = msg.id;
+
+    const bubbleStyle = souEu
+      ? `background:${perfil.cor};color:#fff;`
+      : `background:#fff;border:1px solid #e0e7ef;color:var(--igc-cinza-escuro);`;
+
+    row.innerHTML = `
+      <div class="msg-avatar" style="background:${perfil.cor}" title="${esc(msg.autor_nome)} · ${perfil.label}">${iniciais(msg.autor_nome)}</div>
+      <div class="msg-body">
+        <div class="msg-meta">
+          <span class="msg-nome" style="color:${perfil.cor}">${esc(msg.autor_nome)}</span>
+          <span class="msg-perfil-badge" style="background:${perfil.bg};color:${perfil.cor};">${perfil.label}</span>
+          ${msg.protocolo_ref ? `<span class="msg-ref-badge"><i class="fas fa-ticket-alt"></i> ${esc(msg.protocolo_ref)}</span>` : ''}
+        </div>
+        <div class="msg-bubble" style="${bubbleStyle}">
+          <p>${esc(msg.texto || '').replace(/\n/g,'<br>')}</p>
+        </div>
+        <div class="msg-hora">${formatHora(msg.data_envio || msg.created_at)}</div>
+      </div>`;
+
+    container.appendChild(row);
+  });
+
+  container.dataset.ultimaData  = ultimaData;
+  container.dataset.ultimoAutor = ultimoAutor;
+}
+
+// ── Render Salas (sidebar) ──────────────────────────────
+function renderSalas() {
+  const lista = document.getElementById('listaSalas');
+  lista.innerHTML = SALAS.map(s => {
+    const ativa = s.id === salaAtual ? 'ativa' : '';
+    const nl    = naoLidas[s.id] || 0;
+    return `
+      <button class="sala-btn ${ativa}" onclick="mudarSala('${s.id}')"
+              aria-pressed="${s.id === salaAtual}" title="${esc(s.desc)}">
+        <div class="sala-icon"><i class="fas ${s.icon}"></i></div>
+        <span class="sala-nome">${esc(s.nome)}</span>
+        ${nl > 0 ? `<span class="sala-nao-lidas">${nl > 99 ? '99+' : nl}</span>` : ''}
+      </button>`;
+  }).join('');
+}
+
+// ── Mudar sala ──────────────────────────────────────────
+async function mudarSala(id) {
+  if (id === salaAtual) return;
+  salaAtual = id;
+  naoLidas[id] = 0;
+  renderSalas();
+  atualizarHeaderSala();
+
+  const area = document.getElementById('mensagensArea');
+  area.innerHTML = '<div class="estado-loading"><i class="fas fa-spinner fa-spin"></i> Carregando mensagens…</div>';
+  await carregarMensagens(id, false);
+}
+
+function atualizarHeaderSala() {
+  const sala = getSala(salaAtual);
+  document.getElementById('salaHeaderNome').textContent = sala.nome;
+  document.getElementById('salaHeaderDesc').textContent = sala.desc;
+  const iconEl = document.getElementById('salaHeaderIcon');
+  iconEl.innerHTML = `<i class="fas ${sala.icon}"></i>`;
+}
+
+// ── Enviar mensagem ─────────────────────────────────────
+async function enviarMensagem() {
+  const input = document.getElementById('msgInput');
+  const texto = (input?.value || '').trim();
+  if (!texto || !usuario) return;
+  if (texto.length > MAX_MSG) { mostrarErro(`Máximo de ${MAX_MSG} caracteres.`); return; }
+
+  input.value = '';
+  atualizarCounter();
+  setEnviando(true);
+  esconderErro();
+
+  const sala = getSala(salaAtual);
+  const payload = {
+    sala_id:       salaAtual,
+    sala_nome:     sala.nome,
+    autor_nome:    usuario.nome,
+    autor_email:   usuario.email,
+    autor_tipo:    usuario.tipo,
+    texto:         texto,          // salvar texto bruto; esc() só na renderização
+    protocolo_ref: protocoloRef || '',
+    editada:       false,
+    data_envio:    new Date().toISOString()
+  };
+
+  try {
+    const nova = await apiEnviar(payload);
+    if (!mensagens[salaAtual]) mensagens[salaAtual] = [];
+    const existIds = new Set(mensagens[salaAtual].map(m => m.id));
+    if (!existIds.has(nova.id)) {
+      mensagens[salaAtual].push(nova);
+      renderNovas([nova]);
+    }
+  } catch (err) {
+    console.error('[Chat] Erro ao enviar mensagem:', err);
+    mostrarErro('Não foi possível enviar. ' + (err?.message || 'Tente novamente.'));
+    input.value = texto;
+  } finally {
+    setEnviando(false);
+    input.focus();
+  }
+}
+
+// ── Polling ─────────────────────────────────────────────
+function iniciarPolling() {
+  pararPolling();
+  pollTimer = setInterval(() => {
+    SALAS.forEach(s => carregarMensagens(s.id, true));
+  }, POLL_INTERVAL);
+}
+function pararPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+// ── UI helpers ──────────────────────────────────────────
+function atualizarCounter() {
+  const v = document.getElementById('msgInput')?.value?.length || 0;
+  const el = document.getElementById('charCounter');
+  if (el) {
+    el.textContent = `${v}/${MAX_MSG}`;
+    el.style.color = v > MAX_MSG * 0.9 ? 'var(--igc-vermelho)' : 'var(--igc-cinza-claro)';
+  }
+}
+
+function setEnviando(sim) {
+  const btn = document.getElementById('enviarBtn');
+  if (btn) btn.disabled = sim;
+  enviando = sim;
+}
+
+function mostrarErro(msg) {
+  const el  = document.getElementById('inputErro');
+  const txt = document.getElementById('inputErroTexto');
+  if (el && txt) { txt.textContent = msg; el.style.display = 'flex'; }
+  setTimeout(esconderErro, 5000);
+}
+function esconderErro() {
+  const el = document.getElementById('inputErro');
+  if (el) el.style.display = 'none';
+}
+
+function mostrarToast(msg, tipo = '') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${tipo ? 'toast-' + tipo : ''}`;
+  t.innerHTML = `<i class="fas ${tipo === 'error' ? 'fa-exclamation-circle' : tipo === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> ${esc(msg)}`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ── Protocolo referenciado ───────────────────────────────
+function definirProtocoloRef(proto) {
+  protocoloRef = proto || '';
+  const bar  = document.getElementById('protocoloRefBar');
+  const txt  = document.getElementById('protocoloRefTexto');
+  if (bar && txt) {
+    txt.textContent = proto ? `Referenciando chamado: ${proto}` : '';
+    bar.style.display = proto ? 'flex' : 'none';
+  }
+}
+function limparProtocoloRef() { definirProtocoloRef(''); }
+
+// ── Usuário na sidebar ───────────────────────────────────
+function atualizarSidebarUsuario() {
+  if (!usuario) return;
+  const perfil = getPerfil(usuario.tipo);
+  const av = document.getElementById('sidebarAvatar');
+  const nm = document.getElementById('sidebarNome');
+  const pf = document.getElementById('sidebarPerfil');
+  const hd = document.getElementById('usuarioHeaderNome');
+  if (av) { av.textContent = iniciais(usuario.nome); av.style.background = perfil.cor; }
+  if (nm) nm.textContent = usuario.nome;
+  if (pf) pf.textContent = perfil.label;
+  if (hd) hd.textContent = usuario.nome;
+}
+
+// ── Login ───────────────────────────────────────────────
+function selecionarPerfil(el) {
+  document.querySelectorAll('.perfil-card').forEach(c => c.classList.remove('selecionado'));
+  el.classList.add('selecionado');
+  perfilSelecionado = el.dataset.perfil;
+}
+
+function confirmarLogin() {
+  const nome  = (document.getElementById('loginNome')?.value  || '').trim();
+  const email = (document.getElementById('loginEmail')?.value || '').trim();
+
+  let ok = true;
+  const erroNome  = document.getElementById('erroNome');
+  const erroEmail = document.getElementById('erroEmail');
+  erroNome.style.display  = 'none';
+  erroEmail.style.display = 'none';
+
+  if (!nome)  { erroNome.style.display  = 'block'; document.getElementById('loginNome').focus();  ok = false; }
+  if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+    erroEmail.style.display = 'block';
+    if (ok) document.getElementById('loginEmail').focus();
+    ok = false;
+  }
+  if (!ok) return;
+
+  usuario = { nome, email, tipo: perfilSelecionado };
+  salvarUsuario(usuario);
+
+  document.getElementById('loginOverlay').style.display = 'none';
+  atualizarSidebarUsuario();
+  iniciar();
+}
+
+function trocarUsuario() {
+  pararPolling();
+  usuario = null;
+  localStorage.removeItem('igc_chat_usuario');
+  document.getElementById('loginOverlay').style.display = 'flex';
+  // pré-preencher campos se houver dados
+  document.getElementById('loginNome').value  = '';
+  document.getElementById('loginEmail').value = '';
+}
+
+// ── Inicialização ────────────────────────────────────────
+function iniciar() {
+  renderSalas();
+  atualizarHeaderSala();
+  atualizarSidebarUsuario();
+  carregarMensagens(salaAtual, false).then(() => iniciarPolling());
+
+  // Polling passivo das outras salas para notificações
+  SALAS.filter(s => s.id !== salaAtual).forEach(s => carregarMensagens(s.id, true));
+}
+
+// ── Atalhos teclado ──────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('msgInput');
+  if (input) {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarMensagem(); }
+    });
+    input.addEventListener('input', atualizarCounter);
+  }
+
+  // Verificar se vem com protocolo na URL
+  const params = new URLSearchParams(window.location.search);
+  const proto  = params.get('protocolo');
+  if (proto) definirProtocoloRef(proto);
+
+  // Verificar usuário salvo
+  const u = carregarUsuario();
+  if (u) {
+    usuario = u;
+    // pré-preencher formulário
+    document.getElementById('loginNome').value  = u.nome;
+    document.getElementById('loginEmail').value = u.email;
+    // selecionar perfil salvo
+    const card = document.querySelector(`.perfil-card[data-perfil="${u.tipo}"]`);
+    if (card) {
+      document.querySelectorAll('.perfil-card').forEach(c => c.classList.remove('selecionado'));
+      card.classList.add('selecionado');
+      perfilSelecionado = u.tipo;
+    }
+    document.getElementById('loginOverlay').style.display = 'none';
+    iniciar();
+  }
+  // Se não há usuário, loginOverlay permanece visível
+});
+</script>
+</body>
+</html>
