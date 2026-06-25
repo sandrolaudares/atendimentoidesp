@@ -69,28 +69,28 @@
       <nav class="header-nav" aria-label="Navegação principal">
         <a href="index.html" class="nav-btn"><i class="fas fa-home"></i> Início</a>
         <a href="status.html" class="nav-btn active" aria-current="page"><i class="fas fa-search"></i> Consultar Chamado</a>
-        <button class="nav-btn nav-chat-btn" onclick="abrirChat()" aria-label="Abrir chat em nova janela" style="font-family:inherit;border:1.5px solid rgba(255,255,255,0.45);background:rgba(255,255,255,0.13);"><i class="fas fa-comments" style="color:#a8d8ff"></i> Chat</button>
+        <button class="nav-btn nav-chat-btn" onclick="abrirChat()" aria-label="Abrir chat em nova janela" style="font-family:inherit;"><i class="fas fa-comments"></i> Chat</button>
       </nav>
       <button class="mobile-menu-btn" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" aria-label="Menu">
         <i class="fas fa-bars"></i> Menu
       </button>
     </div>
   </div>
-  <div id="mobileMenu" class="hidden" style="background:rgba(0,0,0,0.15);border-top:1px solid rgba(255,255,255,0.1)">
+  <div id="mobileMenu" class="hidden" style="background:var(--igc-cinza-bg);border-top:1px solid var(--igc-cinza-borda)">
     <div class="container" style="padding:10px 24px;display:flex;flex-direction:column;gap:4px;">
       <a href="index.html" class="nav-btn" style="justify-content:flex-start;"><i class="fas fa-home"></i> Início</a>
       <a href="status.html" class="nav-btn active" style="justify-content:flex-start;"><i class="fas fa-search"></i> Consultar Chamado</a>
-      <button class="nav-btn" onclick="abrirChat()" style="justify-content:flex-start;font-family:inherit;background:rgba(255,255,255,0.13);border:1px solid rgba(255,255,255,0.25);"><i class="fas fa-comments"></i> Chat</button>
+      <button class="nav-btn" onclick="abrirChat()" style="justify-content:flex-start;font-family:inherit;"><i class="fas fa-comments"></i> Chat</button>
     </div>
   </div>
 </header>
 
 <!-- HERO MENOR -->
-<section style="background:linear-gradient(135deg,var(--igc-azul-escuro),var(--igc-azul-medio));padding:26px 0 22px;">
+<section style="background:var(--igc-cinza-bg);padding:26px 0 22px;border-bottom:1px solid var(--igc-cinza-borda);">
   <div class="container">
     <div class="hero-badge"><i class="fas fa-search"></i> Consultar Status</div>
-    <h1 style="font-size:21px;font-weight:700;color:white;margin-top:6px;margin-bottom:4px;">Acompanhar Chamado</h1>
-    <p style="color:rgba(255,255,255,0.78);font-size:13.5px;">Verifique o status, classificação pós-triagem e histórico do seu chamado.</p>
+    <h1 style="font-size:21px;font-weight:700;color:var(--igc-azul-escuro);margin-top:6px;margin-bottom:4px;">Acompanhar Chamado</h1>
+    <p style="color:var(--igc-cinza-medio);font-size:13.5px;">Verifique o status, classificação pós-triagem e histórico do seu chamado.</p>
   </div>
 </section>
 

@@ -55,16 +55,16 @@
     /* Botão Chat na barra de navegação */
     .nav-chat-btn {
       font-family: var(--font-primary);
-      border: 1.5px solid rgba(255,255,255,0.45);
-      background: rgba(255,255,255,0.13);
+      border: 1.5px solid var(--igc-cinza-borda);
+      background: var(--igc-cinza-bg);
       position: relative;
     }
     .nav-chat-btn:hover {
-      background: rgba(255,255,255,0.28);
-      border-color: rgba(255,255,255,0.70);
-      color: #fff;
+      background: var(--igc-azul-suave);
+      border-color: var(--igc-azul-claro);
+      color: var(--igc-azul-medio);
     }
-    .nav-chat-btn i { color: #a8d8ff; }
+    .nav-chat-btn i { color: var(--igc-azul-medio); }
 
     @media(max-width:640px){
       .tipo-cards { grid-template-columns:1fr; }
@@ -117,7 +117,7 @@
       </button>
     </div>
   </div>
-  <div id="mobileMenu" class="hidden" style="background:rgba(0,0,0,0.15);border-top:1px solid rgba(255,255,255,0.1)">
+  <div id="mobileMenu" class="hidden" style="background:var(--igc-cinza-bg);border-top:1px solid var(--igc-cinza-borda)">
     <div class="container" style="padding:10px 24px;display:flex;flex-direction:column;gap:4px;">
       <a href="index.html" class="nav-btn active" style="justify-content:flex-start;"><i class="fas fa-home"></i> Início</a>
       <a href="status.html" class="nav-btn" style="justify-content:flex-start;"><i class="fas fa-search"></i> Consultar Chamado</a>
@@ -501,8 +501,8 @@
           </div>
         </div>
 
-        <!-- CONFIGURAÇÃO GOOGLE SHEETS -->
-        <div class="card" style="border:1.5px solid #c8e6c9;">
+        <!-- CONFIGURAÇÃO GOOGLE SHEETS (oculto da interface pública) -->
+        <div class="card hidden" id="sheetsConfigCard" style="border:1.5px solid #c8e6c9;">
           <div class="card-header" style="background:#f1f8e9;border-bottom:1px solid #c8e6c9;">
             <div class="card-title" style="font-size:13px;color:#2e7d32;">
               <i class="fas fa-table" style="color:#43a047;"></i> Planilha de Registro
