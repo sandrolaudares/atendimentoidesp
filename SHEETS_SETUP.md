@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-O sistema envia automaticamente os dados de cada chamado aberto para a planilha Google BACKLOG via **Google Apps Script** (webhook). Chamados atualizados/triados pelo painel admin também podem ser reenviados.
+O sistema grava automaticamente os dados de cada chamado aberto na planilha Google BACKLOG via **API do Google Sheets** usando uma **Service Account**. Não é necessário Apps Script.
 
 **Planilha**: https://docs.google.com/spreadsheets/d/1g1R2rBkKsINm2ntWTb7uaIg_No7PbRSUyB6F9ff9pZ4/edit?usp=sharing
 
@@ -31,105 +31,68 @@ A planilha possui as seguintes colunas. A **coluna A (COD JIRA)** é gerenciada 
 
 ---
 
-## Google Apps Script
+## Configuração: Service Account do Google Cloud
 
-Na planilha, clique em **Extensões → Apps Script**, apague o conteúdo existente e cole:
+### Passo 1 – Criar projeto no Google Cloud (se ainda não tem)
 
-```javascript
-/**
- * IGC / IDE-SP – Webhook de recebimento de chamados (BACKLOG)
- * Colunas B-N preenchidas pelo sistema (A = COD JIRA, preenchido manualmente)
- */
+1. Acesse https://console.cloud.google.com/
+2. Crie um novo projeto (ou use um existente)
+3. Habilite a **Google Sheets API**:
+   - Vá em **APIs e Serviços → Biblioteca**
+   - Busque "Google Sheets API"
+   - Clique em **Ativar**
 
-const SHEET_NAME = 'BACKLOG'; // Nome da aba principal
+### Passo 2 – Criar Service Account
 
-function doPost(e) {
-  try {
-    const dados = JSON.parse(e.postData.contents);
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+1. Vá em **APIs e Serviços → Credenciais**
+2. Clique em **Criar credenciais → Conta de serviço**
+3. Dê um nome (ex: `atendimento-idesp`)
+4. Clique em **Criar e Continuar** → **Concluído**
+5. Na lista de contas de serviço, clique na que acabou de criar
+6. Vá na aba **Chaves** → **Adicionar chave → Criar nova chave → JSON**
+7. O arquivo JSON será baixado automaticamente
 
-    if (!sheet) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ error: 'Aba não encontrada: ' + SHEET_NAME }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
+### Passo 3 – Compartilhar a planilha com a Service Account
 
-    // Colunas B-N (col A = COD JIRA fica vazia / é preenchida manualmente)
-    const linha = [
-      '',                                          // A: COD JIRA (vazio)
-      dados.prioridade_comparada        || '',     // B: PRIORIDADE COMPARADA
-      dados.categoria                   || '',     // C: CATEGORIA
-      dados.modulo                      || '',     // D: MÓDULO
-      dados.tipo_usuario                || '',     // E: TIPO DE USUÁRIO
-      dados.tela                        || '',     // F: TELA
-      dados.titulo                      || '',     // G: TÍTULO
-      dados.descricao                   || '',     // H: DESCRIÇÃO
-      dados.comportamento_esperado      || '',     // I: COMPORTAMENTO ESPERADO
-      dados.observacoes_anexos          || '',     // J: OBSERVAÇÕES E ANEXOS
-      dados.solicitada_na_sprint        || '',     // K: SOLICITADA NA SPRINT
-      dados.lancado_na_sprint           || '',     // L: LANÇADO NA SPRINT
-      dados.concluido_na_sprint         || '',     // M: CONCLUÍDO NA SPRINT
-      dados.status                      || '',     // N: STATUS
-    ];
+1. Abra o arquivo JSON baixado e copie o campo `client_email` (ex: `atendimento-idesp@projeto.iam.gserviceaccount.com`)
+2. Abra a planilha Google: https://docs.google.com/spreadsheets/d/1g1R2rBkKsINm2ntWTb7uaIg_No7PbRSUyB6F9ff9pZ4/edit
+3. Clique em **Compartilhar**
+4. Adicione o `client_email` da Service Account como **Editor**
+5. Desmarque "Notificar pessoas" e clique em **Compartilhar**
 
-    // Procura linha existente pelo título (col G, índice 6)
-    const valores = sheet.getDataRange().getValues();
-    let linhaExistente = -1;
-    const protocolo = dados._protocolo || '';
-    if (protocolo) {
-      for (let i = 1; i < valores.length; i++) {
-        // Busca por protocolo no campo observações (col J, índice 9)
-        if (valores[i][9] && String(valores[i][9]).indexOf('Protocolo: ' + protocolo) >= 0) {
-          linhaExistente = i + 1;
-          break;
-        }
-      }
-    }
+### Passo 4 – Configurar no Fly.io
 
-    if (linhaExistente > 0) {
-      // Atualiza colunas B-N (mantém col A intacta)
-      sheet.getRange(linhaExistente, 2, 1, 13).setValues([linha.slice(1)]);
-    } else {
-      sheet.appendRow(linha);
-    }
+O conteúdo do arquivo JSON deve ser definido como variável de ambiente `GOOGLE_SERVICE_ACCOUNT_JSON`:
 
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: true, protocolo: protocolo }))
-      .setMimeType(ContentService.MimeType.JSON);
+```bash
+# Substitua o conteúdo do JSON abaixo pelo seu arquivo baixado
+fly secrets set GOOGLE_SERVICE_ACCOUNT_JSON='{"type":"service_account","project_id":"...","private_key_id":"...","private_key":"...","client_email":"...","client_id":"...","auth_uri":"...","token_uri":"...","auth_provider_x509_cert_url":"...","client_x509_cert_url":"..."}'
+```
 
-  } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ error: err.message }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
+Ou copie o conteúdo completo do arquivo JSON:
 
-function testarConexao() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
-  Logger.log(sheet ? 'Planilha encontrada: ' + sheet.getName() : 'Aba não encontrada');
-}
+```bash
+fly secrets set GOOGLE_SERVICE_ACCOUNT_JSON="$(cat caminho/para/service-account.json)"
 ```
 
 ---
 
-## Publicar o Script como Web App
+## Variáveis de Ambiente
 
-1. Clique em **Implantar → Nova implantação**.
-2. Clique no ícone de engrenagem → **Aplicativo da Web**.
-3. Configure:
-   - **Executar como**: `Eu (seu e-mail)`
-   - **Quem tem acesso**: **Qualquer pessoa**
-4. Clique em **Implantar** e autorize.
-5. **Copie a URL** gerada (`https://script.google.com/macros/s/AKfycb.../exec`).
+| Variável                       | Descrição                          | Padrão                                           |
+|--------------------------------|------------------------------------|--------------------------------------------------|
+| `GOOGLE_SERVICE_ACCOUNT_JSON`  | JSON completo da Service Account   | *(obrigatório)*                                  |
+| `GOOGLE_SPREADSHEET_ID`       | ID da planilha Google              | `1g1R2rBkKsINm2ntWTb7uaIg_No7PbRSUyB6F9ff9pZ4` |
+| `GOOGLE_SHEET_NAME`           | Nome da aba na planilha            | `BACKLOG`                                        |
 
 ---
 
-## Configurar a URL no Portal
+## Como funciona
 
-1. Acesse o portal de suporte (`index.html`).
-2. Na sidebar, localize o card **"Planilha de Registro"**.
-3. Cole a URL copiada no campo e pressione Enter.
-4. A URL é salva no navegador (localStorage).
+1. Usuário preenche o formulário no portal de suporte
+2. O frontend envia os dados para `POST /api/sheets/append`
+3. O backend usa a API do Google Sheets para gravar uma nova linha na planilha
+4. Colunas B-N são preenchidas; coluna A (COD JIRA) permanece vazia para preenchimento manual
 
 ---
 
@@ -149,12 +112,12 @@ function testarConexao() {
   "solicitada_na_sprint": "",
   "lancado_na_sprint": "",
   "concluido_na_sprint": "",
-  "status": "Novo",
-  "_protocolo": "IGC-2025-00011001",
-  "_nome": "João da Silva",
-  "_email": "joao@prefeitura.sp.gov.br",
-  "_organizacao": "Prefeitura de São Paulo",
-  "_sistema": "IGC-Suporte-IDE-SP",
-  "_timestamp": "2025-05-08T14:30:00.000Z"
+  "status": "Aberto"
 }
 ```
+
+---
+
+## Verificação da aba
+
+A planilha deve ter uma aba chamada **BACKLOG** (ou o nome configurado em `GOOGLE_SHEET_NAME`). Se a aba não existir, crie-a manualmente com os cabeçalhos nas colunas A-N.

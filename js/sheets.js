@@ -1,48 +1,42 @@
 /**
  * =====================================================
  * IGC/IDE-SP – Sistema de Suporte
- * js/sheets.js – Integração com Google Sheets via Apps Script
+ * js/sheets.js – Integração com Google Sheets via API (server-side)
  * =====================================================
  *
- * Para usar: configure um Google Apps Script com doPost(e) que
- * aceite JSON e escreva numa planilha Google. Cole a URL do
- * Apps Script publicado no campo da sidebar do portal.
+ * O sistema envia os dados do chamado para o backend (/api/sheets/append)
+ * que usa a API do Google Sheets com Service Account para gravar
+ * diretamente na planilha — sem necessidade de Apps Script.
  *
- * Veja SHEETS_SETUP.md para instruções detalhadas.
+ * Veja SHEETS_SETUP.md para instruções de configuração.
  * =====================================================
  */
 
 /**
- * Envia os dados do chamado para o Google Apps Script (webhook).
+ * Envia os dados do chamado para o backend que grava no Google Sheets.
  * Retorna true se bem-sucedido, false caso contrário.
  */
 async function enviarParaSheets(chamado) {
-  const url = localStorage.getItem('igc_sheets_webhook') || '';
-  if (!url || !url.startsWith('https://script.google.com')) {
-    console.warn('[Sheets] URL do webhook não configurada ou inválida.');
-    return false;
-  }
-
-  // Montar payload no formato esperado pela planilha de sprint
   const payload = buildSheetsPayload(chamado);
 
   try {
-    // Google Apps Script exige fetch sem CORS mode em alguns cenários;
-    // usamos no-cors pois o Apps Script não retorna CORS headers por padrão.
-    // Para confirmação de sucesso precisamos de um Apps Script configurado
-    // com ContentService e Access: Anyone.
-    const resp = await fetch(url, {
+    const resp = await fetch('/api/sheets/append', {
       method: 'POST',
-      mode: 'no-cors',           // Apps Script não retorna CORS na maioria dos casos
-      headers: { 'Content-Type': 'text/plain' }, // no-cors só aceita content-types simples
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    // Com no-cors, resp.ok é sempre false (opaque response).
-    // Consideramos sucesso se não lançou exceção.
-    console.info('[Sheets] Payload enviado (modo no-cors). Verifique a planilha.');
-    return true;
+
+    if (resp.ok) {
+      const data = await resp.json();
+      console.info('[Sheets] Chamado gravado com sucesso na planilha.');
+      return true;
+    } else {
+      const err = await resp.json().catch(() => ({}));
+      console.warn('[Sheets] Erro ao gravar:', err.error || resp.statusText);
+      return false;
+    }
   } catch (e) {
-    console.error('[Sheets] Erro ao enviar para o webhook:', e);
+    console.error('[Sheets] Erro ao enviar para o backend:', e);
     return false;
   }
 }
@@ -103,14 +97,6 @@ function buildSheetsPayload(c) {
     concluido_na_sprint:    c.concluido_na_sprint || '',
     // N: STATUS (PREENCHIMENTO DEV)
     status:                 formatStatusSheets(c.status),
-
-    // Metadados extras (não vão para colunas da planilha, mas úteis ao script)
-    _protocolo:             c.protocolo || c.id || '',
-    _nome:                  c.nome || '',
-    _email:                 c.email || '',
-    _organizacao:           c.organizacao || '',
-    _sistema:               'IGC-Suporte-IDE-SP',
-    _timestamp:             new Date().toISOString(),
   };
 }
 
@@ -123,14 +109,6 @@ function buildObservacoesAnexos(c) {
   const numPrints = c.prints_base64 ? JSON.parse(c.prints_base64).length : 0;
   if (numPrints > 0) partes.push(numPrints + ' print(s) anexado(s)');
   return partes.join(' | ');
-}
-
-function formatDataSheets(ts) {
-  if (!ts) return new Date().toLocaleDateString('pt-BR');
-  const d = typeof ts === 'number' ? new Date(ts) : new Date(ts);
-  if (isNaN(d.getTime())) return String(ts);
-  return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric' }) +
-    ' ' + d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
 }
 
 function formatStatusSheets(s) {

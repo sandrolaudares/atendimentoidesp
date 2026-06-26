@@ -2,6 +2,7 @@ const express = require('express');
 const fs      = require('fs');
 const path    = require('path');
 const crypto  = require('crypto');
+const { google } = require('googleapis');
 
 const app  = express();
 const PORT = process.env.PORT || 8080;
@@ -11,6 +12,79 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname), { index: 'index.html' }));
+
+// ── Google Sheets API ────────────────────────────────────
+
+const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID || '1g1R2rBkKsINm2ntWTb7uaIg_No7PbRSUyB6F9ff9pZ4';
+const SHEET_NAME = process.env.GOOGLE_SHEET_NAME || 'BACKLOG';
+
+let sheetsClient = null;
+
+function initSheetsClient() {
+  try {
+    const credJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+    if (!credJson) {
+      console.warn('[Sheets] GOOGLE_SERVICE_ACCOUNT_JSON não configurado. Integração desabilitada.');
+      return null;
+    }
+    const creds = JSON.parse(credJson);
+    const auth = new google.auth.GoogleAuth({
+      credentials: creds,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+    sheetsClient = google.sheets({ version: 'v4', auth });
+    console.info('[Sheets] Cliente Google Sheets inicializado com sucesso.');
+    return sheetsClient;
+  } catch (e) {
+    console.error('[Sheets] Erro ao inicializar cliente:', e.message);
+    return null;
+  }
+}
+
+initSheetsClient();
+
+// POST /api/sheets/append – Grava chamado na planilha (colunas B-N, col A = JIRA fica vazia)
+app.post('/api/sheets/append', async (req, res) => {
+  if (!sheetsClient) {
+    return res.status(503).json({ error: 'Google Sheets não configurado. Defina GOOGLE_SERVICE_ACCOUNT_JSON.' });
+  }
+
+  try {
+    const d = req.body;
+
+    // Colunas A-N: A fica vazia (JIRA), B-N preenchidas pelo sistema
+    const row = [
+      '',                                    // A: COD JIRA (vazio)
+      d.prioridade_comparada ?? '',          // B: PRIORIDADE COMPARADA
+      d.categoria ?? '',                     // C: CATEGORIA
+      d.modulo ?? '',                        // D: MÓDULO
+      d.tipo_usuario ?? '',                  // E: TIPO DE USUÁRIO
+      d.tela ?? '',                          // F: TELA
+      d.titulo ?? '',                        // G: TÍTULO
+      d.descricao ?? '',                     // H: DESCRIÇÃO
+      d.comportamento_esperado ?? '',        // I: COMPORTAMENTO ESPERADO
+      d.observacoes_anexos ?? '',            // J: OBSERVAÇÕES E ANEXOS
+      d.solicitada_na_sprint ?? '',          // K: SOLICITADA NA SPRINT
+      d.lancado_na_sprint ?? '',             // L: LANÇADO NA SPRINT
+      d.concluido_na_sprint ?? '',           // M: CONCLUÍDO NA SPRINT
+      d.status ?? '',                        // N: STATUS
+    ];
+
+    await sheetsClient.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${SHEET_NAME}!A:N`,
+      valueInputOption: 'USER_ENTERED',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: { values: [row] },
+    });
+
+    console.info('[Sheets] Chamado gravado com sucesso:', d.titulo || '(sem título)');
+    res.json({ success: true, message: 'Chamado gravado na planilha.' });
+  } catch (e) {
+    console.error('[Sheets] Erro ao gravar:', e.message);
+    res.status(500).json({ error: 'Erro ao gravar na planilha: ' + e.message });
+  }
+});
 
 // ── Helpers ──────────────────────────────────────────────
 
