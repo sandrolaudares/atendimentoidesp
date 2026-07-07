@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname), { index: 'index.html' }));
 
 // ── Google Sheets API ────────────────────────────────────
 
-const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID || '1g1R2rBkKsINm2ntWTb7uaIg_No7PbRSUyB6F9ff9pZ4';
+const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID || '1T87r0XXk4y1YopCfvu9XbN6LWh2o5uXpSu3G52pGc7M';
 const SHEET_NAME = process.env.GOOGLE_SHEET_NAME || 'BACKLOG';
 
 let sheetsClient = null;

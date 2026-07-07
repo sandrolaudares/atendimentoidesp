@@ -4,7 +4,7 @@
 
 O sistema grava automaticamente os dados de cada chamado aberto na planilha Google BACKLOG via **API do Google Sheets** usando uma **Service Account**. Não é necessário Apps Script.
 
-**Planilha**: https://docs.google.com/spreadsheets/d/1g1R2rBkKsINm2ntWTb7uaIg_No7PbRSUyB6F9ff9pZ4/edit?usp=sharing
+**Planilha**: https://docs.google.com/spreadsheets/d/1T87r0XXk4y1YopCfvu9XbN6LWh2o5uXpSu3G52pGc7M/edit?usp=sharing
 
 ---
 
@@ -55,7 +55,7 @@ A planilha possui as seguintes colunas. A **coluna A (COD JIRA)** é gerenciada 
 ### Passo 3 – Compartilhar a planilha com a Service Account
 
 1. Abra o arquivo JSON baixado e copie o campo `client_email` (ex: `atendimento-idesp@projeto.iam.gserviceaccount.com`)
-2. Abra a planilha Google: https://docs.google.com/spreadsheets/d/1g1R2rBkKsINm2ntWTb7uaIg_No7PbRSUyB6F9ff9pZ4/edit
+2. Abra a planilha Google: https://docs.google.com/spreadsheets/d/1T87r0XXk4y1YopCfvu9XbN6LWh2o5uXpSu3G52pGc7M/edit
 3. Clique em **Compartilhar**
 4. Adicione o `client_email` da Service Account como **Editor**
 5. Desmarque "Notificar pessoas" e clique em **Compartilhar**
@@ -82,7 +82,7 @@ fly secrets set GOOGLE_SERVICE_ACCOUNT_JSON="$(cat caminho/para/service-account.
 | Variável                       | Descrição                          | Padrão                                           |
 |--------------------------------|------------------------------------|--------------------------------------------------|
 | `GOOGLE_SERVICE_ACCOUNT_JSON`  | JSON completo da Service Account   | *(obrigatório)*                                  |
-| `GOOGLE_SPREADSHEET_ID`       | ID da planilha Google              | `1g1R2rBkKsINm2ntWTb7uaIg_No7PbRSUyB6F9ff9pZ4` |
+| `GOOGLE_SPREADSHEET_ID`       | ID da planilha Google              | `1T87r0XXk4y1YopCfvu9XbN6LWh2o5uXpSu3G52pGc7M` |
 | `GOOGLE_SHEET_NAME`           | Nome da aba na planilha            | `BACKLOG`                                        |
 
 ---
