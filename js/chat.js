@@ -20,7 +20,7 @@ const Chat = (() => {
   ];
 
   const PERFIS = [
-    { id: 'igc',          label: 'Equipe IGC',         cor: '#1e5f9a', bg: '#e8f2fb' },
+    { id: 'igc',          label: 'Equipe IGC',         cor: '#333333', bg: '#f2f2f2' },
     { id: 'desenvolvedor',label: 'Desenvolvedor',       cor: '#2e7d32', bg: '#e8f5e9' },
     { id: 'cliente',      label: 'Cliente',             cor: '#546e7a', bg: '#f5f7fa' },
     { id: 'fapetec',      label: 'FAPETEC',             cor: '#7b1fa2', bg: '#f3e5f5' },

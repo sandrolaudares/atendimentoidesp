@@ -6,10 +6,10 @@
 /* Variáveis de Design */
 :root {
   /* Paleta Institucional IGC/IDE-SP */
-  --igc-azul-escuro: #1a3a5c;
-  --igc-azul-medio: #1e5f9a;
-  --igc-azul-claro: #2d7ec4;
-  --igc-azul-suave: #e8f2fb;
+  --igc-azul-escuro: #1a1a1a;
+  --igc-azul-medio: #333333;
+  --igc-azul-claro: #666666;
+  --igc-azul-suave: #f2f2f2;
   --igc-verde-sp: #2e7d32;
   --igc-verde-claro: #e8f5e9;
   --igc-vermelho: #c62828;
@@ -279,7 +279,7 @@ img {
   right: -60px;
   width: 300px;
   height: 300px;
-  background: rgba(30,95,154,0.03);
+  background: rgba(0,0,0,0.03);
   border-radius: 50%;
 }
 
@@ -290,7 +290,7 @@ img {
   right: 120px;
   width: 200px;
   height: 200px;
-  background: rgba(30,95,154,0.02);
+  background: rgba(0,0,0,0.02);
   border-radius: 50%;
 }
 
@@ -425,7 +425,7 @@ img {
   background: var(--igc-azul-escuro);
   color: var(--igc-branco);
   text-decoration: none;
-  box-shadow: 0 4px 14px rgba(30,95,154,0.35);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
 }
 
 .btn-secondary {
@@ -705,7 +705,7 @@ select.form-control {
   letter-spacing: 0.2px;
 }
 
-.badge-aberto { background: #e3f2fd; color: #1565c0; }
+.badge-aberto { background: #eeeeee; color: #333333; }
 .badge-em_atendimento { background: #fff3e0; color: #e65100; }
 .badge-aguardando_usuario { background: #f3e5f5; color: #7b1fa2; }
 .badge-escalado { background: #fce4ec; color: #c62828; }
@@ -754,7 +754,7 @@ select.form-control {
 }
 
 .table tbody tr:hover {
-  background: #f8fbff;
+  background: #f7f7f7;
 }
 
 .table tr.escalado-row {
@@ -1091,7 +1091,7 @@ select.form-control {
 
 /* ===================== PROTOCOLO BOX ===================== */
 .protocolo-box {
-  background: linear-gradient(135deg, var(--igc-azul-suave), #deedf7);
+  background: linear-gradient(135deg, var(--igc-azul-suave), #e6e6e6);
   border: 2px solid var(--igc-azul-claro);
   border-radius: var(--radius-lg);
   padding: 28px 24px;
@@ -1140,7 +1140,7 @@ select.form-control {
   border-left: 4px solid var(--igc-azul-claro);
 }
 
-.stat-card.stat-aberto { border-color: #1565c0; }
+.stat-card.stat-aberto { border-color: #333333; }
 .stat-card.stat-atendimento { border-color: #e65100; }
 .stat-card.stat-escalado { border-color: #c62828; }
 .stat-card.stat-resolvido { border-color: #2e7d32; }
@@ -1595,7 +1595,7 @@ footer a:hover {
   color: #fff;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 18px rgba(30,95,154,0.40);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.40);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1606,7 +1606,7 @@ footer a:hover {
 .chat-fab:hover {
   background: var(--igc-azul-claro);
   transform: scale(1.08);
-  box-shadow: 0 6px 24px rgba(30,95,154,0.50);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.50);
 }
 .chat-fab:focus-visible {
   outline: 3px solid var(--igc-azul-claro);

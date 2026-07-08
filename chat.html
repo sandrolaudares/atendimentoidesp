@@ -11,10 +11,10 @@
   <style>
     /* ── Variáveis IGC ── */
     :root {
-      --igc-azul-escuro:  #1a3a5c;
-      --igc-azul-medio:   #1e5f9a;
-      --igc-azul-claro:   #2d7ec4;
-      --igc-azul-suave:   #e8f2fb;
+      --igc-azul-escuro:  #1a1a1a;
+      --igc-azul-medio:   #333333;
+      --igc-azul-claro:   #666666;
+      --igc-azul-suave:   #f2f2f2;
       --igc-verde-sp:     #2e7d32;
       --igc-vermelho:     #c62828;
       --igc-vermelho-claro: #ffebee;
@@ -544,12 +544,12 @@
       justify-content: center;
       flex-shrink: 0;
       transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
-      box-shadow: 0 2px 8px rgba(30,95,154,0.30);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.30);
     }
     .enviar-btn:hover:not(:disabled) {
       background: var(--igc-azul-claro);
       transform: scale(1.08);
-      box-shadow: 0 4px 14px rgba(30,95,154,0.40);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.40);
     }
     .enviar-btn:disabled { opacity: 0.40; cursor: not-allowed; transform: none; }
     .enviar-btn:focus-visible { outline: 3px solid var(--igc-azul-claro); outline-offset: 3px; }
@@ -736,7 +736,7 @@
       gap: 4px;
     }
     .perfil-card:hover { border-color: var(--igc-azul-claro); background: var(--igc-azul-suave); }
-    .perfil-card.selecionado { border-color: var(--igc-azul-medio); background: var(--igc-azul-suave); box-shadow: 0 0 0 3px rgba(30,95,154,0.12); }
+    .perfil-card.selecionado { border-color: var(--igc-azul-medio); background: var(--igc-azul-suave); box-shadow: 0 0 0 3px rgba(0,0,0,0.12); }
     .perfil-card .perfil-card-icon { font-size: 20px; }
     .perfil-card .perfil-card-nome { font-size: 12px; font-weight: 700; color: var(--igc-azul-escuro); }
     .perfil-card-check {
@@ -832,7 +832,7 @@
 
     <!-- Usuário logado (rodapé sidebar) -->
     <div class="sidebar-user" id="sidebarUser">
-      <div class="user-avatar" id="sidebarAvatar" style="background:#1e5f9a">?</div>
+      <div class="user-avatar" id="sidebarAvatar" style="background:#333333">?</div>
       <div class="user-info">
         <div class="user-nome" id="sidebarNome">—</div>
         <div class="user-perfil" id="sidebarPerfil">—</div>
@@ -981,7 +981,7 @@ const SALAS = [
 
 const PERFIS = {
   fapetec:      { label: 'Fapetec',   cor: '#7b1fa2', bg: '#f3e5f5',   emoji: '🔬' },
-  igc:          { label: 'IGC SP',    cor: '#1e5f9a', bg: '#e8f2fb',   emoji: '🏛️' },
+  igc:          { label: 'IGC SP',    cor: '#333333', bg: '#f2f2f2',   emoji: '🏛️' },
 };
 
 // ── Estado ─────────────────────────────────────────────
