@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consultar Chamado | Suporte IDE-SP / SIMM – IGC</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    .triagem-box {
+      background: #f3e5f5;
+      border: 2px solid #ab47bc;
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+    }
+    .triagem-box h4 {
+      font-size: 13px; font-weight: 700; color: #6a1b9a;
+      display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .triagem-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 15px; font-weight: 700; color: var(--igc-azul-escuro);
+    }
+    .campo-detalhe {
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 11px 13px;
+      background: var(--igc-cinza-bg);
+      border-radius: var(--radius-md);
+    }
+    .campo-detalhe-label {
+      font-size: 10.5px; font-weight: 700; color: var(--igc-cinza-claro);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .campo-detalhe-valor {
+      font-size: 13.5px; color: var(--igc-cinza-escuro); font-weight: 500;
+    }
+    @media(max-width:768px){ .grid-status { grid-template-columns:1fr !important; } }
+  </style>
+</head>
+<body>
+
+<div class="barra-gov" role="banner">
+  <div class="container">
+    <img src="assets/img/logo-governo-do-estado-sp.webp" alt="Governo do Estado de São Paulo" class="barra-gov-logo">
+    <span>Governo do Estado de São Paulo</span>
+    <div class="barra-links">
+      <a href="https://www.igc.sp.gov.br" target="_blank" rel="noopener">IGC</a>
+      <a href="https://www.idesp.sp.gov.br" target="_blank" rel="noopener">IDE-SP</a>
+    </div>
+  </div>
+</div>
+
+<header class="header" role="banner">
+  <div class="header-inner">
+    <div class="container">
+      <div class="header-brand">
+        <div class="header-logo-wrapper" title="Instituto Geográfico e Cartográfico de São Paulo">
+          <img src="assets/img/logo1.jpg" alt="IGC SP" class="header-logo-img">
+        </div>
+        <div class="header-divider"></div>
+        <div class="header-info">
+          <div class="header-title">Central de Suporte IDE-SP / SIMM</div>
+          <div class="header-subtitle">Instituto Geográfico e Cartográfico de São Paulo</div>
+        </div>
+      </div>
+      <nav class="header-nav" aria-label="Navegação principal">
+        <a href="index.html" class="nav-btn"><i class="fas fa-home"></i> Início</a>
+        <a href="status.html" class="nav-btn active" aria-current="page"><i class="fas fa-search"></i> Consultar Chamado</a>
+        <button class="nav-btn nav-chat-btn" onclick="abrirChat()" aria-label="Abrir chat em nova janela" style="font-family:inherit;"><i class="fas fa-comments"></i> Chat</button>
+      </nav>
+      <button class="mobile-menu-btn" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" aria-label="Menu">
+        <i class="fas fa-bars"></i> Menu
+      </button>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden" style="background:var(--igc-cinza-bg);border-top:1px solid var(--igc-cinza-borda)">
+    <div class="container" style="padding:10px 24px;display:flex;flex-direction:column;gap:4px;">
+      <a href="index.html" class="nav-btn" style="justify-content:flex-start;"><i class="fas fa-home"></i> Início</a>
+      <a href="status.html" class="nav-btn active" style="justify-content:flex-start;"><i class="fas fa-search"></i> Consultar Chamado</a>
+      <button class="nav-btn" onclick="abrirChat()" style="justify-content:flex-start;font-family:inherit;"><i class="fas fa-comments"></i> Chat</button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO MENOR -->
+<section style="background:var(--igc-cinza-bg);padding:26px 0 22px;border-bottom:1px solid var(--igc-cinza-borda);">
+  <div class="container">
+    <div class="hero-badge"><i class="fas fa-search"></i> Consultar Status</div>
+    <h1 style="font-size:21px;font-weight:700;color:var(--igc-azul-escuro);margin-top:6px;margin-bottom:4px;">Acompanhar Chamado</h1>
+    <p style="color:var(--igc-cinza-medio);font-size:13.5px;">Verifique o status, classificação pós-triagem e histórico do seu chamado.</p>
+  </div>
+</section>
+
+<main class="main-content">
+  <div class="container">
+
+    <!-- BUSCA -->
+    <div class="card mb-24">
+      <div class="card-header">
+        <div class="card-title"><i class="fas fa-search"></i> Buscar Chamado</div>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label" for="inputProtocolo">Número de protocolo ou e-mail cadastrado</label>
+            <div class="search-bar">
+              <span class="search-icon"><i class="fas fa-search"></i></span>
+              <input type="text" class="form-control" id="inputProtocolo"
+                placeholder="Ex: IGC-2025-00011001 ou seu@email.com" autocomplete="off">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="buscarChamado()" id="btnBuscar" style="padding:10px 20px;">
+            <i class="fas fa-search"></i> Buscar
+          </button>
+        </div>
+        <div id="buscaErro" class="hidden" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- ESTADO INICIAL -->
+    <div id="estadoInicial">
+      <div class="card">
+        <div class="card-body">
+          <div class="empty-state">
+            <span class="empty-icon">🔍</span>
+            <p style="font-size:16px;font-weight:500;color:var(--igc-cinza-escuro);margin-bottom:6px;">Consulte seu chamado</p>
+            <p>Digite o número de protocolo (ex: <strong>IGC-2025-00011001</strong>) ou o e-mail cadastrado.</p>
+            <div style="margin-top:16px;">
+              <a href="index.html" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Abrir Novo Chamado</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTADO -->
+    <div id="resultadoArea" class="hidden">
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:20px;" class="grid-status">
+
+        <!-- COLUNA PRINCIPAL -->
+        <div>
+
+          <!-- CABEÇALHO DO CHAMADO -->
+          <div class="card mb-16">
+            <div class="card-header" style="flex-direction:column;align-items:flex-start;gap:10px;">
+              <div style="display:flex;justify-content:space-between;width:100%;align-items:center;flex-wrap:wrap;gap:8px;">
+                <span style="font-size:13px;font-weight:700;color:var(--igc-cinza-medio);" id="detProtocolo">—</span>
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                  <span id="detStatusBadge"></span>
+                </div>
+              </div>
+              <h2 style="font-size:17px;font-weight:700;color:var(--igc-azul-escuro);" id="detTitulo">—</h2>
+            </div>
+            <div class="card-body">
+              <!-- Grid de metadados -->
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-bottom:16px;" id="detMetaGrid">
+              </div>
+
+              <!-- Tipo de chamado: original x triagem -->
+              <div id="detTipoArea" style="margin-bottom:16px;"></div>
+
+              <!-- Descrição -->
+              <div style="margin-bottom:12px;">
+                <div style="font-size:11px;font-weight:700;color:var(--igc-cinza-medio);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Descrição do problema</div>
+                <div id="detDescricao" style="background:var(--igc-cinza-bg);padding:14px;border-radius:var(--radius-md);font-size:13.5px;line-height:1.65;white-space:pre-wrap;"></div>
+              </div>
+
+              <!-- Comportamento esperado -->
+              <div id="detComportamentoArea" class="hidden" style="margin-bottom:12px;">
+                <div style="font-size:11px;font-weight:700;color:var(--igc-azul-escuro);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Comportamento esperado</div>
+                <div id="detComportamento" style="background:var(--igc-azul-suave);padding:14px;border-radius:var(--radius-md);font-size:13.5px;line-height:1.65;white-space:pre-wrap;"></div>
+              </div>
+
+              <!-- Prints -->
+              <div id="detPrintsArea" class="hidden">
+                <div style="font-size:11px;font-weight:700;color:var(--igc-cinza-medio);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Capturas de tela enviadas</div>
+                <div class="prints-grid" id="detPrints"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RESPOSTA DA EQUIPE -->
+          <div class="card mb-16">
+            <div class="card-header">
+              <div class="card-title" style="font-size:14px;"><i class="fas fa-comment-alt"></i> Resposta da Equipe IGC</div>
+            </div>
+            <div class="card-body">
+              <div id="respostaContent">
+                <div class="empty-state" style="padding:22px;">
+                  <span class="empty-icon" style="font-size:32px;">⏳</span>
+                  <p>Aguardando resposta da equipe de atendimento.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- HISTÓRICO -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title" style="font-size:14px;"><i class="fas fa-history"></i> Histórico de Atendimento</div>
+            </div>
+            <div class="card-body">
+              <div id="historicoContent">
+                <div class="empty-state" style="padding:22px;">
+                  <span class="empty-icon" style="font-size:32px;">📋</span>
+                  <p>Nenhum histórico disponível.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SIDEBAR STATUS -->
+        <div>
+
+          <!-- PROGRESSO DO STATUS -->
+          <div class="card mb-16">
+            <div class="card-header">
+              <div class="card-title" style="font-size:14px;"><i class="fas fa-signal"></i> Status do Chamado</div>
+            </div>
+            <div class="card-body" style="padding:14px;">
+              <div id="statusSteps" style="display:flex;flex-direction:column;gap:7px;"></div>
+            </div>
+          </div>
+
+          <!-- SPRINT ATRIBUÍDA -->
+          <div id="sprintCard" class="card mb-16 hidden">
+            <div class="card-body" style="padding:14px;text-align:center;">
+              <div style="font-size:11px;font-weight:700;color:var(--igc-cinza-claro);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Sprint Atribuída</div>
+              <div id="sprintValor" style="font-size:18px;font-weight:800;color:var(--igc-azul-escuro);"></div>
+            </div>
+          </div>
+
+          <!-- ESCALADO -->
+          <div id="escaladoAviso" class="hidden mb-16">
+            <div class="escalate-box">
+              <h4><i class="fas fa-envelope"></i> Encaminhado à equipe dev</h4>
+              <p>Este chamado foi encaminhado para a equipe de desenvolvimento da IDE-SP para análise especializada.</p>
+            </div>
+          </div>
+
+          <!-- AÇÕES -->
+          <div class="card mb-16">
+            <div class="card-header">
+              <div class="card-title" style="font-size:14px;"><i class="fas fa-cog"></i> Ações</div>
+            </div>
+            <div class="card-body" style="padding:12px;display:flex;flex-direction:column;gap:8px;">
+              <button class="btn btn-outline w-full" onclick="abrirModalAtualizacao()" id="btnAtualizar" style="font-size:13px;">
+                <i class="fas fa-comment"></i> Adicionar Informação
+              </button>
+              <button class="btn btn-ghost w-full" onclick="fecharChamadoUsuario()" id="btnFechar" style="font-size:13px;">
+                <i class="fas fa-check-circle"></i> Marcar como Resolvido
+              </button>
+              <a href="index.html" class="btn btn-ghost w-full" style="font-size:13px;">
+                <i class="fas fa-plus"></i> Novo Chamado
+              </a>
+            </div>
+          </div>
+
+          <!-- OUTROS CONTATOS -->
+          <div class="card" style="border:1.5px solid #ffe082;">
+            <div class="card-body" style="padding:13px 14px;">
+              <div style="font-size:12.5px;font-weight:600;color:#5d4037;margin-bottom:8px;">Outro assunto? Use:</div>
+              <div style="font-size:12px;color:var(--igc-cinza-medio);display:flex;flex-direction:column;gap:6px;">
+                <div><strong style="color:#5d4037;">Produtos IGC:</strong><br>
+                  <a href="mailto:atendimentoigc@sp.gov.br" style="color:var(--igc-azul-medio);font-size:11.5px;">atendimentoigc@sp.gov.br</a>
+                </div>
+                <div><strong style="color:#5d4037;">Municípios e IGC:</strong><br>
+                  <a href="mailto:municipios.igc@sp.gov.br" style="color:var(--igc-azul-medio);font-size:11.5px;">municipios.igc@sp.gov.br</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL ADICIONAR INFORMAÇÃO -->
+<div class="modal-overlay" id="modalAtualizar" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="fas fa-comment"></i> Adicionar Informação ao Chamado</h3>
+      <button class="modal-close" onclick="fecharModal('modalAtualizar')" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-info mb-16">
+        <span class="alert-icon">💡</span>
+        <div>Use este campo para enviar informações adicionais à equipe de atendimento.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="atualizacaoTexto">Mensagem <span class="required">*</span></label>
+        <textarea class="form-control" id="atualizacaoTexto" rows="5" placeholder="Descreva a informação adicional..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fecharModal('modalAtualizar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="enviarAtualizacao()"><i class="fas fa-paper-plane"></i> Enviar</button>
+    </div>
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <div class="container">
+    <div>
+      <span class="footer-brand">IGC – Instituto Geográfico e Cartográfico</span><br>
+      <span>Av. Prof. Lineu Prestes, 913, Cidade Universitária – São Paulo/SP – CEP 05508-000</span>
+    </div>
+    <div style="text-align:right;">
+      <div>Sistema de Suporte IDE-SP/SIMM &copy; <span id="anoFooter"></span></div>
+      <div style="margin-top:4px;">
+        <a href="https://www.idesp.sp.gov.br" target="_blank" rel="noopener">Portal IDE-SP</a> &nbsp;|&nbsp;
+        <a href="https://www.igc.sp.gov.br" target="_blank" rel="noopener">Site IGC</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()" role="dialog" aria-label="Visualizador de imagem">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fechar">✕</button>
+  <img src="" id="lightboxImg" alt="Captura de tela ampliada">
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/sheets.js"></script>
+<script>
+  document.getElementById('anoFooter').textContent = new Date().getFullYear();
+
+  let chamadoAtualId = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const proto = params.get('protocolo');
+    if (proto) {
+      document.getElementById('inputProtocolo').value = proto;
+      buscarChamado();
+    }
+  });
+
+  document.getElementById('inputProtocolo').addEventListener('keydown', e => {
+    if (e.key === 'Enter') buscarChamado();
+  });
+
+  async function buscarChamado() {
+    const query = document.getElementById('inputProtocolo').value.trim();
+    if (!query) { showToast('Digite o protocolo ou e-mail para buscar.', 'warning'); return; }
+
+    const btn = document.getElementById('btnBuscar');
+    btn.innerHTML = '<span class="loading-spinner"></span> Buscando...';
+    btn.disabled = true;
+    document.getElementById('buscaErro').classList.add('hidden');
+
+    try {
+      const resp = await fetch(`tables/chamados?search=${encodeURIComponent(query)}&limit=50`);
+      const data = await resp.json();
+      let chamado = null;
+
+      if (data.data && data.data.length > 0) {
+        chamado = data.data.find(c => (c.protocolo || '').toLowerCase() === query.toLowerCase())
+          || data.data.find(c => (c.email || '').toLowerCase() === query.toLowerCase())
+          || data.data[0];
+      }
+
+      if (!chamado) {
+        document.getElementById('buscaErro').innerHTML =
+          `<div class="alert alert-danger"><span class="alert-icon">❌</span><div>Chamado não encontrado para "<strong>${escapeHtml(query)}</strong>". Verifique o protocolo ou use o e-mail cadastrado.</div></div>`;
+        document.getElementById('buscaErro').classList.remove('hidden');
+        document.getElementById('estadoInicial').classList.remove('hidden');
+        document.getElementById('resultadoArea').classList.add('hidden');
+      } else {
+        chamadoAtualId = chamado.id;
+        renderChamado(chamado);
+      }
+    } catch(e) {
+      showToast('Erro ao buscar chamado. Tente novamente.', 'error');
+    } finally {
+      btn.innerHTML = '<i class="fas fa-search"></i> Buscar';
+      btn.disabled = false;
+    }
+  }
+
+  function renderChamado(c) {
+    document.getElementById('estadoInicial').classList.add('hidden');
+    document.getElementById('resultadoArea').classList.remove('hidden');
+
+    // Cabeçalho
+    document.getElementById('detProtocolo').textContent = c.protocolo || c.id;
+    document.getElementById('detStatusBadge').innerHTML = renderBadge(c.status, 'status');
+    document.getElementById('detTitulo').textContent = c.titulo || '(sem título)';
+
+    // Grid de metadados
+    const metaItems = [
+      { label:'Solicitante',    val: c.nome || '—' },
+      { label:'Organização',    val: c.organizacao || 'Não informado' },
+      { label:'Módulo',         val: c.modulo || '—' },
+      { label:'Tela',           val: c.tela || '—' },
+      { label:'Tipo de usuário',val: c.tipo_usuario || '—' },
+      { label:'Abertura',       val: formatData(c.created_at) },
+    ];
+    document.getElementById('detMetaGrid').innerHTML = metaItems.map(m =>
+      `<div class="campo-detalhe">
+        <span class="campo-detalhe-label">${escapeHtml(m.label)}</span>
+        <span class="campo-detalhe-valor">${escapeHtml(m.val)}</span>
+      </div>`
+    ).join('');
+
+    // Tipo de chamado: original e triagem
+    let tipoHtml = `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:stretch;">`;
+    // Tipo original
+    tipoHtml += `<div class="campo-detalhe" style="flex:1;min-width:160px;">
+      <span class="campo-detalhe-label">Tipo solicitado</span>
+      <span class="campo-detalhe-valor" style="font-size:14px;">${formatTipoChamado(c.tipo_chamado,'abertura')}</span>
+    </div>`;
+    // Reclassificação pós-triagem (visível se preenchida)
+    if (c.tipo_chamado_triagem) {
+      tipoHtml += `<div class="triagem-box" style="flex:1;min-width:160px;">
+        <h4><i class="fas fa-tag"></i> Reclassificado na triagem</h4>
+        <div class="triagem-label">${renderBadgeTipo(c.tipo_chamado_triagem,'triagem')}</div>
+        ${c.sprint ? `<div style="font-size:12px;color:#6a1b9a;margin-top:6px;"><i class="fas fa-calendar-alt"></i> ${escapeHtml(c.sprint)}</div>` : ''}
+      </div>`;
+    }
+    tipoHtml += `</div>`;
+    document.getElementById('detTipoArea').innerHTML = tipoHtml;
+
+    // Descrição
+    document.getElementById('detDescricao').textContent = c.descricao || '—';
+
+    // Comportamento esperado
+    if (c.comportamento_esperado) {
+      document.getElementById('detComportamento').textContent = c.comportamento_esperado;
+      document.getElementById('detComportamentoArea').classList.remove('hidden');
+    } else {
+      document.getElementById('detComportamentoArea').classList.add('hidden');
+    }
+
+    // Prints
+    try {
+      const prints = JSON.parse(c.prints_base64 || '[]');
+      if (prints.length > 0) {
+        document.getElementById('detPrintsArea').classList.remove('hidden');
+        document.getElementById('detPrints').innerHTML = prints.map((p, i) =>
+          `<div class="print-img-wrapper" onclick="openLightbox('${p}')" role="button" tabindex="0" aria-label="Print ${i+1}">
+            <img src="${p}" alt="Print ${i+1}">
+          </div>`
+        ).join('');
+      } else {
+        document.getElementById('detPrintsArea').classList.add('hidden');
+      }
+    } catch(e) {
+      document.getElementById('detPrintsArea').classList.add('hidden');
+    }
+
+    // Resposta
+    if (c.resposta) {
+      document.getElementById('respostaContent').innerHTML =
+        `<div style="background:var(--igc-verde-claro);border-left:4px solid var(--igc-verde-sp);border-radius:var(--radius-md);padding:14px 16px;">
+          <div style="font-size:11px;font-weight:700;color:var(--igc-verde-sp);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px;">
+            <i class="fas fa-check-circle"></i> Resposta da Equipe IGC
+          </div>
+          <div style="font-size:13.5px;line-height:1.65;white-space:pre-wrap;">${escapeHtml(c.resposta)}</div>
+        </div>`;
+    } else {
+      document.getElementById('respostaContent').innerHTML =
+        `<div class="empty-state" style="padding:22px;">
+          <span class="empty-icon" style="font-size:32px;">⏳</span>
+          <p>Aguardando resposta da equipe de atendimento.</p>
+        </div>`;
+    }
+
+    // Histórico
+    try {
+      const hist = JSON.parse(c.historico || '[]');
+      if (hist.length > 0) {
+        document.getElementById('historicoContent').innerHTML =
+          `<div class="historico-timeline">${hist.map((h, i) =>
+            `<div class="historico-item">
+              <div>
+                <div class="historico-dot">${getHistoricoIcon(h.acao)}</div>
+                ${i < hist.length - 1 ? '<div class="historico-linha"></div>' : ''}
+              </div>
+              <div class="historico-content">
+                <div class="historico-acao">${escapeHtml(h.acao || '')}</div>
+                <div class="historico-meta">
+                  <i class="fas fa-user" style="font-size:9px;"></i> ${escapeHtml(h.autor || 'Sistema')}
+                  &nbsp;·&nbsp;
+                  <i class="fas fa-clock" style="font-size:9px;"></i> ${escapeHtml(h.data || '')}
+                </div>
+              </div>
+            </div>`
+          ).join('')}</div>`;
+      } else {
+        document.getElementById('historicoContent').innerHTML =
+          `<div class="empty-state" style="padding:22px;"><span class="empty-icon" style="font-size:32px;">📋</span><p>Nenhum histórico disponível.</p></div>`;
+      }
+    } catch(e) {}
+
+    // Status steps
+    renderStatusSteps(c.status);
+
+    // Sprint
+    if (c.sprint) {
+      document.getElementById('sprintCard').classList.remove('hidden');
+      document.getElementById('sprintValor').textContent = c.sprint;
+    } else {
+      document.getElementById('sprintCard').classList.add('hidden');
+    }
+
+    // Escalado
+    c.escalado_email
+      ? document.getElementById('escaladoAviso').classList.remove('hidden')
+      : document.getElementById('escaladoAviso').classList.add('hidden');
+
+    // Desabilitar ações se encerrado
+    const enc = ['resolvido','fechado'].includes(c.status);
+    document.getElementById('btnAtualizar').disabled = enc;
+    document.getElementById('btnFechar').disabled = enc;
+    if (enc) {
+      document.getElementById('btnFechar').innerHTML =
+        `<i class="fas fa-check"></i> ${c.status === 'resolvido' ? 'Resolvido' : 'Fechado'}`;
+    }
+  }
+
+  function renderStatusSteps(statusAtual) {
+    const fluxo = [
+      { key:'aberto',            label:'Aberto',                icon:'📩' },
+      { key:'em_atendimento',    label:'Em Atendimento',        icon:'👨‍💻' },
+      { key:'aguardando_usuario',label:'Aguardando Informação',  icon:'⏰' },
+      { key:'escalado',          label:'Análise Especializada',  icon:'🔧' },
+      { key:'resolvido',         label:'Resolvido',              icon:'✅' },
+    ];
+    const idxAtual = fluxo.findIndex(s => s.key === statusAtual);
+    document.getElementById('statusSteps').innerHTML = fluxo.map((s, i) => {
+      const isCurrent = s.key === statusAtual;
+      const isDone = i < idxAtual || statusAtual === 'fechado';
+      const bg  = isCurrent ? 'var(--igc-azul-suave)' : isDone ? 'var(--igc-verde-claro)' : 'var(--igc-cinza-bg)';
+      const bdr = isCurrent ? 'var(--igc-azul-claro)'  : isDone ? 'var(--igc-verde-sp)'    : 'var(--igc-cinza-borda)';
+      const txt = isCurrent ? 'var(--igc-azul-escuro)' : isDone ? 'var(--igc-verde-sp)'    : 'var(--igc-cinza-claro)';
+      return `<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;background:${bg};border:1.5px solid ${bdr};">
+        <span style="font-size:15px;">${s.icon}</span>
+        <span style="font-size:12.5px;font-weight:${isCurrent?'700':'400'};color:${txt};flex:1;">${s.label}</span>
+        ${isCurrent ? `<span style="font-size:10px;font-weight:700;color:var(--igc-azul-medio);">ATUAL</span>` : ''}
+        ${isDone && !isCurrent ? `<span style="font-size:13px;color:var(--igc-verde-sp);">✓</span>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  async function enviarAtualizacao() {
+    const texto = document.getElementById('atualizacaoTexto').value.trim();
+    if (!texto) { showToast('Digite a informação antes de enviar.', 'warning'); return; }
+    if (!chamadoAtualId) return;
+    try {
+      const resp = await fetch(`tables/chamados/${chamadoAtualId}`);
+      const chamado = await resp.json();
+      let hist = [];
+      try { hist = JSON.parse(chamado.historico || '[]'); } catch(e) {}
+      hist.push({ data: new Date().toLocaleString('pt-BR'), autor: chamado.nome || 'Solicitante',
+        acao: `Informação adicionada pelo solicitante: ${texto.substring(0,80)}${texto.length>80?'…':''}` });
+      await fetch(`tables/chamados/${chamadoAtualId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ historico: JSON.stringify(hist), status: 'em_atendimento' })
+      });
+      fecharModal('modalAtualizar');
+      document.getElementById('atualizacaoTexto').value = '';
+      showToast('Informação enviada com sucesso!', 'success');
+      setTimeout(buscarChamado, 800);
+    } catch(e) { showToast('Erro ao enviar atualização.', 'error'); }
+  }
+
+  async function fecharChamadoUsuario() {
+    if (!chamadoAtualId) return;
+    if (!confirm('Deseja marcar este chamado como resolvido?')) return;
+    try {
+      const resp = await fetch(`tables/chamados/${chamadoAtualId}`);
+      const chamado = await resp.json();
+      let hist = [];
+      try { hist = JSON.parse(chamado.historico || '[]'); } catch(e) {}
+      hist.push({ data: new Date().toLocaleString('pt-BR'), autor: chamado.nome || 'Solicitante',
+        acao: 'Chamado marcado como resolvido pelo solicitante' });
+      await fetch(`tables/chamados/${chamadoAtualId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'resolvido', historico: JSON.stringify(hist) })
+      });
+      showToast('Chamado marcado como resolvido!', 'success');
+      setTimeout(buscarChamado, 800);
+    } catch(e) { showToast('Erro ao atualizar chamado.', 'error'); }
+  }
+
+  function abrirModalAtualizacao() {
+    document.getElementById('modalAtualizar').classList.add('active');
+    setTimeout(() => document.getElementById('atualizacaoTexto').focus(), 200);
+  }
+</script>
+
+<script>
+  function abrirChat(protocolo) {
+    const url = protocolo ? `chat.html?protocolo=${encodeURIComponent(protocolo)}` : 'chat.html';
+    window.open(url, 'igc_chat', 'width=880,height=680,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no');
+  }
+</script>
+</body>
+</html>

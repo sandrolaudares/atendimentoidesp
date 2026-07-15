@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Atendimento | Suporte IDE-SP / SIMM – IGC</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    .admin-badge {
+      background:#fff8dc; border:1.5px solid #f0c040; color:#7a5c00;
+      border-radius:6px; padding:4px 12px; font-size:12px; font-weight:600;
+      display:inline-flex; align-items:center; gap:5px;
+    }
+    .row-actions { display:flex; gap:5px; flex-wrap:nowrap; }
+    .triagem-pill {
+      display:inline-flex; align-items:center; gap:4px;
+      font-size:11.5px; font-weight:600; padding:2px 8px;
+      border-radius:12px; background:#f3e5f5; color:#6a1b9a;
+      border:1px solid #ce93d8;
+    }
+    .detalhe-bloco {
+      background:var(--igc-cinza-bg); border-radius:var(--radius-md);
+      padding:12px 14px; margin-bottom:10px;
+    }
+    .detalhe-bloco-label {
+      font-size:10.5px; font-weight:700; color:var(--igc-cinza-claro);
+      text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;
+    }
+    .detalhe-bloco-val {
+      font-size:13.5px; line-height:1.6; white-space:pre-wrap;
+      color:var(--igc-cinza-escuro);
+    }
+    .meta-grid-admin {
+      display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; margin-bottom:12px;
+    }
+    .meta-item-admin {
+      background:var(--igc-cinza-bg); border-radius:var(--radius-sm);
+      padding:9px 11px;
+    }
+    .meta-item-admin-label { font-size:10px; font-weight:700; color:var(--igc-cinza-claro); text-transform:uppercase; letter-spacing:0.4px; }
+    .meta-item-admin-val   { font-size:13px; font-weight:500; color:var(--igc-cinza-escuro); margin-top:2px; }
+
+    /* Seção de triagem no modal */
+    .triagem-section {
+      background:#faf5ff; border:2px solid #ce93d8;
+      border-radius:var(--radius-lg); padding:16px 18px; margin-bottom:14px;
+    }
+    .triagem-section h4 {
+      font-size:13px; font-weight:700; color:#6a1b9a;
+      display:flex; align-items:center; gap:6px; margin-bottom:12px;
+      text-transform:uppercase; letter-spacing:0.4px;
+    }
+    @media(max-width:768px){
+      .stats-grid { grid-template-columns:repeat(2,1fr); }
+      .row-actions { flex-wrap:wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="barra-gov" role="banner">
+  <div class="container">
+    <img src="assets/img/logo-governo-do-estado-sp.webp" alt="Governo do Estado de São Paulo" class="barra-gov-logo">
+    <span>Governo do Estado de São Paulo</span>
+    <div class="barra-links">
+      <a href="https://www.igc.sp.gov.br" target="_blank" rel="noopener">IGC</a>
+      <a href="https://www.idesp.sp.gov.br" target="_blank" rel="noopener">IDE-SP</a>
+    </div>
+  </div>
+</div>
+
+<header class="header" role="banner">
+  <div class="header-inner">
+    <div class="container">
+      <div class="header-brand">
+        <div class="header-logo-wrapper" title="Instituto Geográfico e Cartográfico de São Paulo">
+          <img src="assets/img/logo1.jpg" alt="IGC SP" class="header-logo-img">
+        </div>
+        <div class="header-divider"></div>
+        <div class="header-info">
+          <div class="header-title">Painel de Atendimento – IDE-SP / SIMM</div>
+          <div class="header-subtitle">Área exclusiva da equipe IGC / FAPETEC</div>
+        </div>
+      </div>
+      <nav class="header-nav" aria-label="Navegação principal">
+        <a href="index.html" class="nav-btn"><i class="fas fa-home"></i> Início</a>
+        <a href="status.html" class="nav-btn"><i class="fas fa-search"></i> Consultar</a>
+        <a href="admin.html" class="nav-btn nav-admin active" aria-current="page"><i class="fas fa-cog"></i> Painel IGC</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- HERO ADMIN -->
+<section style="background:var(--igc-cinza-bg);padding:20px 0 16px;border-bottom:1px solid var(--igc-cinza-borda);">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <span class="admin-badge"><i class="fas fa-shield-alt"></i> Área Restrita – Equipe IGC / FAPETEC</span>
+        <h1 style="font-size:19px;font-weight:700;color:var(--igc-azul-escuro);margin-top:8px;">Gerenciamento de Chamados</h1>
+        <p style="color:var(--igc-cinza-medio);font-size:13px;margin-top:2px;">Triar, responder, reclassificar e escalonar chamados de suporte IDE-SP/SIMM.</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="exportarCSV()">
+          <i class="fas fa-file-csv"></i> Exportar CSV
+        </button>
+        <button class="btn btn-secondary" onclick="carregarChamados()">
+          <i class="fas fa-sync-alt"></i> Atualizar
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="main-content">
+  <div class="container">
+
+    <!-- ESTATÍSTICAS -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card stat-aberto">
+        <div class="stat-number" id="statAberto">—</div>
+        <div class="stat-label">Abertos</div>
+      </div>
+      <div class="stat-card stat-atendimento">
+        <div class="stat-number" id="statAtendimento">—</div>
+        <div class="stat-label">Em Atendimento</div>
+      </div>
+      <div class="stat-card stat-escalado">
+        <div class="stat-number" id="statEscalado">—</div>
+        <div class="stat-label">Escalados</div>
+      </div>
+      <div class="stat-card stat-resolvido">
+        <div class="stat-number" id="statResolvido">—</div>
+        <div class="stat-label">Resolvidos</div>
+      </div>
+    </div>
+
+    <!-- TABELA DE CHAMADOS -->
+    <div class="card">
+      <div class="card-header" style="flex-direction:column;align-items:flex-start;gap:12px;">
+        <div style="display:flex;justify-content:space-between;width:100%;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div class="card-title"><i class="fas fa-list-ul"></i> Lista de Chamados</div>
+          <div class="search-bar" style="min-width:240px;">
+            <span class="search-icon"><i class="fas fa-search"></i></span>
+            <input type="text" class="form-control" id="adminSearch"
+              placeholder="Buscar por nome, protocolo, módulo..."
+              oninput="filtrarLocal()" style="padding-left:38px;">
+          </div>
+        </div>
+        <!-- Filtros status -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;" role="group" aria-label="Filtrar por status">
+          <button class="filter-chip active" onclick="filtrarStatus('todos',this)">Todos</button>
+          <button class="filter-chip" onclick="filtrarStatus('aberto',this)">🔵 Abertos</button>
+          <button class="filter-chip" onclick="filtrarStatus('em_atendimento',this)">🟠 Em Atendimento</button>
+          <button class="filter-chip" onclick="filtrarStatus('aguardando_usuario',this)">🟣 Aguardando</button>
+          <button class="filter-chip" onclick="filtrarStatus('escalado',this)">🔴 Escalados</button>
+          <button class="filter-chip" onclick="filtrarStatus('resolvido',this)">🟢 Resolvidos</button>
+          <button class="filter-chip" onclick="filtrarStatus('fechado',this)">⚫ Fechados</button>
+        </div>
+        <!-- Filtros tipo -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;" role="group" aria-label="Filtrar por tipo">
+          <span style="font-size:12px;color:var(--igc-cinza-medio);align-self:center;">Tipo:</span>
+          <button class="filter-chip active" onclick="filtrarTipo('todos',this)" id="ft_todos">Todos</button>
+          <button class="filter-chip" onclick="filtrarTipo('correcao_alta',this)">🔴 C. Alta</button>
+          <button class="filter-chip" onclick="filtrarTipo('correcao_media',this)">🟠 C. Média</button>
+          <button class="filter-chip" onclick="filtrarTipo('correcao_baixa',this)">🟡 C. Baixa</button>
+          <button class="filter-chip" onclick="filtrarTipo('melhoria',this)">🟢 Melhoria</button>
+        </div>
+      </div>
+
+      <div class="card-body" style="padding:0;">
+        <div class="table-responsive">
+          <table class="table" aria-label="Lista de chamados">
+            <thead>
+              <tr>
+                <th>Protocolo</th>
+                <th>Solicitante / Org.</th>
+                <th>Módulo · Tela</th>
+                <th>Tipo Chamado</th>
+                <th>Triagem</th>
+                <th>Status</th>
+                <th>Sprint</th>
+                <th style="width:130px;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="chamadosBody">
+              <tr><td colspan="8" style="text-align:center;padding:40px;">
+                <span class="loading-spinner" style="border-color:rgba(0,0,0,0.2);border-top-color:var(--igc-azul-medio);width:28px;height:28px;border-width:3px;"></span>
+                <br><span style="color:var(--igc-cinza-medio);font-size:14px;display:block;margin-top:10px;">Carregando...</span>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-footer" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <span style="font-size:13px;color:var(--igc-cinza-medio);" id="paginacaoInfo">—</span>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="paginar(-1)" id="btnAnterior" disabled>
+            <i class="fas fa-chevron-left"></i> Anterior
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="paginar(1)" id="btnProximo" disabled>
+            Próximo <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ========== MODAL: DETALHE ========== -->
+<div class="modal-overlay" id="modalDetalhe" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:740px;">
+    <div class="modal-header">
+      <h3 id="modalDetalheTitulo"><i class="fas fa-ticket-alt"></i> Detalhes</h3>
+      <button class="modal-close" onclick="fecharModal('modalDetalhe')" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-body" id="modalDetalheBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fecharModal('modalDetalhe')">Fechar</button>
+      <button class="btn btn-primary" onclick="abrirResponder(chamadoSelecionadoId)">
+        <i class="fas fa-reply"></i> Responder
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL: TRIAGEM / RESPONDER ========== -->
+<div class="modal-overlay" id="modalResponder" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:660px;">
+    <div class="modal-header">
+      <h3><i class="fas fa-reply"></i> Responder / Triar Chamado</h3>
+      <button class="modal-close" onclick="fecharModal('modalResponder')" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="responderInfoBox" style="margin-bottom:14px;"></div>
+
+      <!-- TRIAGEM / RECLASSIFICAÇÃO -->
+      <div class="triagem-section">
+        <h4><i class="fas fa-tag"></i> Triagem e Reclassificação</h4>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="triagem_tipo">Reclassificar como (pós-triagem)</label>
+            <select class="form-control" id="triagem_tipo">
+              <option value="">— Manter tipo original —</option>
+              <option value="correcao_alta">🔴 Correção Alta Prioridade (1–5 dias)</option>
+              <option value="correcao_media">🟠 Correção Média Prioridade (6–10 dias)</option>
+              <option value="correcao_baixa">🟡 Correção Baixa Prioridade (próx. sprint)</option>
+              <option value="evolucao">🔷 Evolução</option>
+              <option value="melhoria">🟢 Melhoria (próx. sprint)</option>
+              <option value="nao_e_bug">⚪ Não é bug</option>
+              <option value="duplicado">🔁 Duplicado</option>
+              <option value="cancelado">❌ Cancelado</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="triagem_sprint">Atribuir Sprint</label>
+            <input type="text" class="form-control" id="triagem_sprint" placeholder="Ex: Sprint 12, Sprint 13...">
+          </div>
+        </div>
+      </div>
+
+      <!-- STATUS E RESPOSTA -->
+      <div class="form-group">
+        <label class="form-label" for="statusResposta">Atualizar status do chamado</label>
+        <select class="form-control" id="statusResposta">
+          <option value="em_atendimento">👨‍💻 Em Atendimento</option>
+          <option value="aguardando_usuario">⏰ Aguardando Usuário</option>
+          <option value="resolvido">✅ Resolvido</option>
+          <option value="fechado">⚫ Fechado</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="respostaTexto">Resposta ao solicitante <span class="required">*</span></label>
+        <textarea class="form-control" id="respostaTexto" rows="5"
+          placeholder="Digite aqui a resposta, instruções ou solução para o solicitante..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="notaAtendente">Nota interna <span style="font-size:12px;color:var(--igc-cinza-claro);">(não visível ao solicitante)</span></label>
+        <textarea class="form-control" id="notaAtendente" rows="2"
+          placeholder="Observações internas da equipe IGC/FAPETEC..."></textarea>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+        <input type="checkbox" id="chkReenviarSheets" style="width:16px;height:16px;cursor:pointer;" checked>
+        <label for="chkReenviarSheets" style="font-size:13px;cursor:pointer;color:var(--igc-cinza-medio);">
+          <i class="fas fa-table" style="color:#43a047;"></i> Reenviar dados atualizados para a planilha Google
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fecharModal('modalResponder')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarResposta()">
+        <i class="fas fa-save"></i> Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL: ESCALONAR ========== -->
+<div class="modal-overlay" id="modalEscalar" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <h3><i class="fas fa-envelope"></i> Escalonar para Equipe de Desenvolvimento</h3>
+      <button class="modal-close" onclick="fecharModal('modalEscalar')" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-warning mb-16">
+        <span class="alert-icon">⚠️</span>
+        <div>O escalonamento gera um e-mail completo com todos os dados do chamado para a equipe de desenvolvimento da IDE-SP.</div>
+      </div>
+      <div id="escalarInfoBox" style="margin-bottom:14px;"></div>
+      <div class="form-group">
+        <label class="form-label" for="emailDestinoEscalar">E-mail destino (equipe de desenvolvimento)</label>
+        <input type="email" class="form-control" id="emailDestinoEscalar" value="idesp@igc.sp.gov.br">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="motivoEscalar">Motivo / Observações para a equipe dev</label>
+        <textarea class="form-control" id="motivoEscalar" rows="3"
+          placeholder="Descreva por que este chamado precisa de análise especializada..."></textarea>
+      </div>
+      <div class="escalate-box">
+        <h4><i class="fas fa-info-circle"></i> Como funciona</h4>
+        <p>Será gerado um link <code>mailto:</code> com todas as informações do chamado. Seu cliente de e-mail abrirá com a mensagem pronta para envio. O chamado será marcado como <strong>Escalado</strong> no sistema.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fecharModal('modalEscalar')">Cancelar</button>
+      <button class="btn btn-warning" onclick="executarEscalonamento()">
+        <i class="fas fa-paper-plane"></i> Gerar E-mail e Escalonar
+      </button>
+    </div>
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <div class="container">
+    <div>
+      <span class="footer-brand">IGC – Instituto Geográfico e Cartográfico</span><br>
+      <span>Sistema de Suporte IDE-SP/SIMM – Painel Administrativo</span>
+    </div>
+    <div style="text-align:right;">
+      <div>Suporte IDE-SP/SIMM &copy; <span id="anoFooter"></span></div>
+      <div style="margin-top:4px;"><a href="index.html">Portal do Usuário</a></div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()" role="dialog" aria-label="Visualizador">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fechar">✕</button>
+  <img src="" id="lightboxImg" alt="Captura de tela ampliada">
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/sheets.js"></script>
+<script>
+document.getElementById('anoFooter').textContent = new Date().getFullYear();
+
+let todosChamados = [];
+let filtroStatus = 'todos';
+let filtroTipo = 'todos';
+let paginaAtual = 1;
+const POR_PAGINA = 15;
+let chamadoSelecionadoId = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  carregarChamados();
+  setInterval(carregarChamados, 60000);
+});
+
+async function carregarChamados() {
+  try {
+    const resp = await fetch('tables/chamados?limit=300');
+    const data = await resp.json();
+    todosChamados = (data.data || []).sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+    atualizarStats();
+    renderTabela();
+  } catch(e) {
+    document.getElementById('chamadosBody').innerHTML =
+      `<tr><td colspan="8" style="text-align:center;padding:36px;color:var(--igc-vermelho);">
+        <i class="fas fa-exclamation-triangle"></i> Erro ao carregar chamados.
+      </td></tr>`;
+  }
+}
+
+function atualizarStats() {
+  const n = s => todosChamados.filter(c => c.status === s).length;
+  document.getElementById('statAberto').textContent = n('aberto');
+  document.getElementById('statAtendimento').textContent = n('em_atendimento') + n('aguardando_usuario');
+  document.getElementById('statEscalado').textContent = n('escalado');
+  document.getElementById('statResolvido').textContent = n('resolvido') + n('fechado');
+}
+
+function filtrarStatus(st, btn) {
+  filtroStatus = st;
+  paginaAtual = 1;
+  document.querySelectorAll('[onclick^="filtrarStatus"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTabela();
+}
+
+function filtrarTipo(t, btn) {
+  filtroTipo = t;
+  paginaAtual = 1;
+  document.querySelectorAll('[onclick^="filtrarTipo"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTabela();
+}
+
+function filtrarLocal() { paginaAtual = 1; renderTabela(); }
+
+function listaFiltrada() {
+  const busca = document.getElementById('adminSearch').value.toLowerCase().trim();
+  return todosChamados.filter(c => {
+    if (filtroStatus !== 'todos' && c.status !== filtroStatus) return false;
+    if (filtroTipo !== 'todos' && c.tipo_chamado !== filtroTipo) return false;
+    if (busca) {
+      return [c.protocolo, c.nome, c.email, c.titulo, c.modulo, c.tela, c.organizacao, c.sprint]
+        .some(f => (f || '').toLowerCase().includes(busca));
+    }
+    return true;
+  });
+}
+
+function renderTabela() {
+  const lista = listaFiltrada();
+  const total = lista.length;
+  const totalPags = Math.max(1, Math.ceil(total / POR_PAGINA));
+  const inicio = (paginaAtual - 1) * POR_PAGINA;
+  const pagina = lista.slice(inicio, inicio + POR_PAGINA);
+
+  document.getElementById('paginacaoInfo').textContent = total === 0
+    ? 'Nenhum chamado encontrado'
+    : `Exibindo ${inicio + 1}–${Math.min(inicio + POR_PAGINA, total)} de ${total} chamado${total !== 1 ? 's' : ''}`;
+
+  document.getElementById('btnAnterior').disabled = paginaAtual <= 1;
+  document.getElementById('btnProximo').disabled = paginaAtual >= totalPags;
+
+  if (pagina.length === 0) {
+    document.getElementById('chamadosBody').innerHTML =
+      `<tr><td colspan="8"><div class="empty-state" style="padding:36px;">
+        <span class="empty-icon">📭</span>
+        <p>Nenhum chamado encontrado com os filtros atuais.</p>
+      </div></td></tr>`;
+    return;
+  }
+
+  document.getElementById('chamadosBody').innerHTML = pagina.map(c => {
+    const triagemHtml = c.tipo_chamado_triagem
+      ? `<span class="triagem-pill">🏷️ ${formatTipoChamado(c.tipo_chamado_triagem,'triagem').replace(/^[^\s]+\s/,'')}</span>`
+      : `<span style="color:var(--igc-cinza-claro);font-size:12px;">—</span>`;
+
+    const sprintHtml = c.sprint
+      ? `<span style="font-size:12px;font-weight:600;color:var(--igc-azul-medio);">${escapeHtml(c.sprint)}</span>`
+      : `<span style="color:var(--igc-cinza-claro);font-size:12px;">—</span>`;
+
+    const escaladoIcon = c.escalado_email ? '🔧 ' : '';
+
+    return `<tr>
+      <td>
+        <div style="font-weight:700;font-size:12.5px;color:var(--igc-azul-escuro);">${escaladoIcon}${escapeHtml(c.protocolo || c.id.substring(0,10))}</div>
+        <div style="font-size:11px;color:var(--igc-cinza-claro);">${formatData(c.created_at).split(' ')[0]}</div>
+      </td>
+      <td>
+        <div style="font-weight:600;font-size:13px;">${escapeHtml(c.nome || '—')}</div>
+        <div style="font-size:11.5px;color:var(--igc-cinza-claro);">${escapeHtml(c.organizacao || c.email || '')}</div>
+      </td>
+      <td>
+        <div style="font-size:12.5px;font-weight:600;">${escapeHtml(c.modulo || '—')}</div>
+        <div style="font-size:11px;color:var(--igc-cinza-claro);">${escapeHtml(c.tela || '')}</div>
+      </td>
+      <td>${renderBadgeTipo(c.tipo_chamado,'abertura')}</td>
+      <td>${triagemHtml}</td>
+      <td>${renderBadge(c.status,'status')}</td>
+      <td>${sprintHtml}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn btn-outline btn-sm btn-icon" onclick="abrirDetalhe('${c.id}')" title="Ver detalhes" aria-label="Detalhes">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn btn-primary btn-sm btn-icon" onclick="abrirResponder('${c.id}')" title="Triar / Responder" aria-label="Responder">
+            <i class="fas fa-reply"></i>
+          </button>
+          <button class="btn btn-warning btn-sm btn-icon" onclick="abrirEscalar('${c.id}')" title="Escalonar" aria-label="Escalonar">
+            <i class="fas fa-share"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function paginar(dir) {
+  const totalPags = Math.max(1, Math.ceil(listaFiltrada().length / POR_PAGINA));
+  paginaAtual = Math.min(Math.max(1, paginaAtual + dir), totalPags);
+  renderTabela();
+}
+
+/* ---- DETALHE ---- */
+function abrirDetalhe(id) {
+  const c = todosChamados.find(x => x.id === id);
+  if (!c) return;
+  chamadoSelecionadoId = id;
+
+  let printsHtml = '';
+  try {
+    const prints = JSON.parse(c.prints_base64 || '[]');
+    if (prints.length) printsHtml = `
+      <div class="detalhe-bloco">
+        <div class="detalhe-bloco-label">Capturas de tela</div>
+        <div class="prints-grid">${prints.map((p,i) =>
+          `<div class="print-img-wrapper" onclick="openLightbox('${p}')" role="button" tabindex="0" aria-label="Print ${i+1}">
+            <img src="${p}" alt="Print ${i+1}">
+          </div>`
+        ).join('')}</div>
+      </div>`;
+  } catch(e) {}
+
+  let histHtml = '';
+  try {
+    const hist = JSON.parse(c.historico || '[]');
+    if (hist.length) histHtml = `
+      <div class="detalhe-bloco">
+        <div class="detalhe-bloco-label">Histórico</div>
+        <div class="historico-timeline">${hist.map((h,i) => `
+          <div class="historico-item">
+            <div>
+              <div class="historico-dot" style="width:28px;height:28px;font-size:12px;">${getHistoricoIcon(h.acao)}</div>
+              ${i < hist.length-1 ? '<div class="historico-linha"></div>' : ''}
+            </div>
+            <div class="historico-content">
+              <div class="historico-acao">${escapeHtml(h.acao||'')}</div>
+              <div class="historico-meta"><i class="fas fa-user" style="font-size:9px;"></i> ${escapeHtml(h.autor||'Sistema')} · ${escapeHtml(h.data||'')}</div>
+            </div>
+          </div>`).join('')}</div>
+      </div>`;
+  } catch(e) {}
+
+  const triagemHtml = c.tipo_chamado_triagem ? `
+    <div style="margin-bottom:10px;padding:10px 12px;background:#faf5ff;border:1.5px solid #ce93d8;border-radius:var(--radius-md);">
+      <div style="font-size:10.5px;font-weight:700;color:#6a1b9a;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;">
+        🏷️ Reclassificado na triagem
+      </div>
+      <div style="font-size:14px;font-weight:700;">${formatTipoChamado(c.tipo_chamado_triagem,'triagem')}</div>
+      ${c.sprint ? `<div style="font-size:12px;color:#6a1b9a;margin-top:4px;"><i class="fas fa-calendar-alt"></i> ${escapeHtml(c.sprint)}</div>` : ''}
+    </div>` : '';
+
+  document.getElementById('modalDetalheTitulo').innerHTML =
+    `<i class="fas fa-ticket-alt"></i> ${escapeHtml(c.protocolo || 'Chamado')}`;
+
+  document.getElementById('modalDetalheBody').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+      <div>${renderBadge(c.status,'status')} ${renderBadgeTipo(c.tipo_chamado,'abertura')}</div>
+      <div style="font-size:12px;color:var(--igc-cinza-medio);">${formatData(c.created_at)}</div>
+    </div>
+    ${triagemHtml}
+    <div style="font-size:17px;font-weight:700;color:var(--igc-azul-escuro);margin-bottom:12px;">${escapeHtml(c.titulo||'')}</div>
+    <div class="meta-grid-admin">
+      <div class="meta-item-admin"><div class="meta-item-admin-label">Solicitante</div><div class="meta-item-admin-val">${escapeHtml(c.nome||'—')}</div></div>
+      <div class="meta-item-admin"><div class="meta-item-admin-label">E-mail</div><div class="meta-item-admin-val" style="font-size:12px;">${escapeHtml(c.email||'—')}</div></div>
+      <div class="meta-item-admin"><div class="meta-item-admin-label">Organização</div><div class="meta-item-admin-val">${escapeHtml(c.organizacao||'—')}</div></div>
+      <div class="meta-item-admin"><div class="meta-item-admin-label">Módulo</div><div class="meta-item-admin-val">${escapeHtml(c.modulo||'—')}</div></div>
+      <div class="meta-item-admin"><div class="meta-item-admin-label">Tela</div><div class="meta-item-admin-val">${escapeHtml(c.tela||'—')}</div></div>
+      <div class="meta-item-admin"><div class="meta-item-admin-label">Tipo de usuário</div><div class="meta-item-admin-val">${escapeHtml(c.tipo_usuario||'—')}</div></div>
+      <div class="meta-item-admin"><div class="meta-item-admin-label">Sprint</div><div class="meta-item-admin-val">${escapeHtml(c.sprint||'—')}</div></div>
+      <div class="meta-item-admin"><div class="meta-item-admin-label">Escalado</div><div class="meta-item-admin-val">${c.escalado_email ? '🔧 Sim' : 'Não'}</div></div>
+    </div>
+    <div class="detalhe-bloco">
+      <div class="detalhe-bloco-label">Descrição detalhada</div>
+      <div class="detalhe-bloco-val">${escapeHtml(c.descricao||'—')}</div>
+    </div>
+    ${c.comportamento_esperado ? `<div class="detalhe-bloco" style="background:#e8f4fd;">
+      <div class="detalhe-bloco-label" style="color:var(--igc-azul-escuro);">Comportamento esperado</div>
+      <div class="detalhe-bloco-val">${escapeHtml(c.comportamento_esperado)}</div>
+    </div>` : ''}
+    ${c.resposta ? `<div class="detalhe-bloco" style="background:var(--igc-verde-claro);border-left:3px solid var(--igc-verde-sp);">
+      <div class="detalhe-bloco-label" style="color:var(--igc-verde-sp);">Resposta enviada</div>
+      <div class="detalhe-bloco-val">${escapeHtml(c.resposta)}</div>
+    </div>` : ''}
+    ${printsHtml}
+    ${histHtml}
+  `;
+
+  document.getElementById('modalDetalhe').classList.add('active');
+}
+
+/* ---- RESPONDER / TRIAR ---- */
+function abrirResponder(id) {
+  const c = todosChamados.find(x => x.id === id);
+  if (!c) return;
+  chamadoSelecionadoId = id;
+
+  document.getElementById('responderInfoBox').innerHTML = `
+    <div class="meta-item-admin" style="margin-bottom:10px;">
+      <div class="meta-item-admin-label">Chamado</div>
+      <div class="meta-item-admin-val" style="font-size:14px;font-weight:700;">${escapeHtml(c.protocolo||'')} — ${escapeHtml((c.titulo||'').substring(0,70))}${(c.titulo||'').length>70?'…':''}</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+      ${renderBadge(c.status,'status')}
+      ${renderBadgeTipo(c.tipo_chamado,'abertura')}
+      ${c.tipo_chamado_triagem ? renderBadgeTipo(c.tipo_chamado_triagem,'triagem') : ''}
+    </div>`;
+
+  // Pré-preencher campos
+  document.getElementById('triagem_tipo').value = c.tipo_chamado_triagem || '';
+  document.getElementById('triagem_sprint').value = c.sprint || '';
+  document.getElementById('statusResposta').value =
+    ['aberto'].includes(c.status) ? 'em_atendimento' : (c.status || 'em_atendimento');
+  document.getElementById('respostaTexto').value = c.resposta || '';
+  document.getElementById('notaAtendente').value = '';
+
+  fecharModal('modalDetalhe');
+  document.getElementById('modalResponder').classList.add('active');
+  setTimeout(() => document.getElementById('respostaTexto').focus(), 200);
+}
+
+async function salvarResposta() {
+  const texto = document.getElementById('respostaTexto').value.trim();
+  if (!texto) { showToast('Digite a resposta antes de salvar.', 'warning'); return; }
+  if (!chamadoSelecionadoId) return;
+
+  const c = todosChamados.find(x => x.id === chamadoSelecionadoId);
+  const novoStatus   = document.getElementById('statusResposta').value;
+  const triagemTipo  = document.getElementById('triagem_tipo').value;
+  const sprint       = document.getElementById('triagem_sprint').value.trim();
+  const nota         = document.getElementById('notaAtendente').value.trim();
+  const reenviar     = document.getElementById('chkReenviarSheets').checked;
+
+  let hist = [];
+  try { hist = JSON.parse(c.historico || '[]'); } catch(e) {}
+
+  const acoes = [];
+  acoes.push(`Status atualizado para: ${formatStatus(novoStatus)}`);
+  if (triagemTipo) acoes.push(`Reclassificado na triagem: ${formatTipoChamado(triagemTipo,'triagem')}`);
+  if (sprint) acoes.push(`Sprint atribuída: ${sprint}`);
+  if (nota) acoes.push(`Nota interna: ${nota.substring(0,60)}${nota.length>60?'…':''}`);
+  acoes.push('Resposta enviada ao solicitante.');
+
+  hist.push({
+    data: new Date().toLocaleString('pt-BR'),
+    autor: 'Atendente IGC',
+    acao: acoes.join(' | ')
+  });
+
+  const patch = {
+    resposta: texto,
+    status: novoStatus,
+    historico: JSON.stringify(hist),
+  };
+  if (triagemTipo) patch.tipo_chamado_triagem = triagemTipo;
+  if (sprint) patch.sprint = sprint;
+
+  try {
+    await fetch(`tables/chamados/${chamadoSelecionadoId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch)
+    });
+
+    fecharModal('modalResponder');
+    showToast('Chamado atualizado com sucesso!', 'success');
+
+    // Reenviar para planilha
+    if (reenviar) {
+      try {
+        const chamadoAtual = { ...c, ...patch };
+        const ok = await reenviarParaSheets(chamadoAtual);
+        if (ok) showToast('Planilha Google atualizada.', 'success');
+        else showToast('Não foi possível atualizar a planilha automaticamente.', 'warning');
+      } catch(e) {}
+    }
+
+    await carregarChamados();
+  } catch(e) {
+    showToast('Erro ao salvar. Tente novamente.', 'error');
+  }
+}
+
+/* ---- ESCALONAR ---- */
+function abrirEscalar(id) {
+  const c = todosChamados.find(x => x.id === id);
+  if (!c) return;
+  chamadoSelecionadoId = id;
+
+  document.getElementById('escalarInfoBox').innerHTML = `
+    <div class="meta-item-admin" style="margin-bottom:6px;">
+      <div class="meta-item-admin-label">Chamado</div>
+      <div class="meta-item-admin-val">${escapeHtml(c.protocolo||'')} — ${escapeHtml((c.titulo||'').substring(0,70))}</div>
+    </div>`;
+  document.getElementById('motivoEscalar').value = '';
+  fecharModal('modalDetalhe');
+  document.getElementById('modalEscalar').classList.add('active');
+}
+
+async function executarEscalonamento() {
+  if (!chamadoSelecionadoId) return;
+  const c = todosChamados.find(x => x.id === chamadoSelecionadoId);
+  if (!c) return;
+
+  const emailDest = document.getElementById('emailDestinoEscalar').value.trim() || 'idesp@igc.sp.gov.br';
+  const motivo    = document.getElementById('motivoEscalar').value.trim();
+
+  const TIPO_LABELS = {
+    correcao_alta:'Correção Alta Prioridade', correcao_media:'Correção Média Prioridade',
+    correcao_baixa:'Correção Baixa Prioridade', melhoria:'Melhoria',
+    evolucao:'Evolução', nao_e_bug:'Não é bug', duplicado:'Duplicado', cancelado:'Cancelado'
+  };
+
+  const assunto = `[IDE-SP SUPORTE] Chamado Escalado: ${c.protocolo} – ${c.titulo}`;
+  const corpo = [
+    `Chamado de suporte IDE-SP/SIMM escalado para análise especializada.`,
+    ``,
+    `PROTOCOLO:       ${c.protocolo || c.id}`,
+    `SOLICITANTE:     ${c.nome} (${c.email})`,
+    `ORGANIZAÇÃO:     ${c.organizacao || 'Não informado'}`,
+    `MÓDULO:          ${c.modulo || '—'}`,
+    `TELA:            ${c.tela || '—'}`,
+    `TIPO USUÁRIO:    ${c.tipo_usuario || '—'}`,
+    `TIPO CHAMADO:    ${TIPO_LABELS[c.tipo_chamado] || c.tipo_chamado}`,
+    c.tipo_chamado_triagem ? `TIPO TRIAGEM:    ${TIPO_LABELS[c.tipo_chamado_triagem]}` : null,
+    c.sprint ? `SPRINT:          ${c.sprint}` : null,
+    `STATUS ATUAL:    ${formatStatus(c.status)}`,
+    `DATA ABERTURA:   ${formatData(c.created_at)}`,
+    ``,
+    `TÍTULO:`,
+    c.titulo,
+    ``,
+    `DESCRIÇÃO:`,
+    c.descricao,
+    c.comportamento_esperado ? `\nCOMPORTAMENTO ESPERADO:\n${c.comportamento_esperado}` : null,
+    motivo ? `\nMOTIVO DO ESCALONAMENTO:\n${motivo}` : null,
+    c.resposta ? `\nRESPOSTA ATUAL DA EQUIPE:\n${c.resposta}` : null,
+    ``,
+    `---`,
+    `Sistema de Suporte IDE-SP/SIMM – IGC`,
+  ].filter(l => l !== null).join('\n');
+
+  window.open(`mailto:${emailDest}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`, '_blank');
+
+  // Atualizar chamado
+  let hist = [];
+  try { hist = JSON.parse(c.historico || '[]'); } catch(e) {}
+  hist.push({
+    data: new Date().toLocaleString('pt-BR'),
+    autor: 'Atendente IGC',
+    acao: `Chamado escalado para a equipe de desenvolvimento (${emailDest}).${motivo ? ' Motivo: '+motivo.substring(0,60) : ''}`
+  });
+
+  try {
+    await fetch(`tables/chamados/${chamadoSelecionadoId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ escalado_email: true, status: 'escalado', historico: JSON.stringify(hist) })
+    });
+    fecharModal('modalEscalar');
+    showToast('Chamado escalado! Verifique seu cliente de e-mail.', 'success');
+    await carregarChamados();
+  } catch(e) {
+    showToast('Erro ao atualizar status do chamado.', 'error');
+  }
+}
+
+/* ---- EXPORTAR CSV ---- */
+function exportarCSV() {
+  const lista = listaFiltrada();
+  if (!lista.length) { showToast('Nenhum chamado para exportar.', 'warning'); return; }
+
+  const TIPO_LABELS = {
+    correcao_alta:'Correção Alta Prioridade', correcao_media:'Correção Média Prioridade',
+    correcao_baixa:'Correção Baixa Prioridade', melhoria:'Melhoria',
+    evolucao:'Evolução', nao_e_bug:'Não é bug', duplicado:'Duplicado', cancelado:'Cancelado'
+  };
+
+  const cols = [
+    'Protocolo','Data Abertura','Nome','E-mail','Organização',
+    'Tipo Chamado','Tipo Triagem','Módulo','Tela','Tipo Usuário',
+    'Título','Descrição','Comportamento Esperado',
+    'Status','Sprint','Escalado','Resposta'
+  ];
+
+  const escape = v => `"${String(v||'').replace(/"/g,'""')}"`;
+
+  const linhas = [cols.join(';')].concat(lista.map(c => [
+    c.protocolo||'',
+    formatData(c.created_at),
+    c.nome||'',
+    c.email||'',
+    c.organizacao||'',
+    TIPO_LABELS[c.tipo_chamado]||c.tipo_chamado||'',
+    TIPO_LABELS[c.tipo_chamado_triagem]||c.tipo_chamado_triagem||'',
+    c.modulo||'',
+    c.tela||'',
+    c.tipo_usuario||'',
+    c.titulo||'',
+    c.descricao||'',
+    c.comportamento_esperado||'',
+    formatStatus(c.status),
+    c.sprint||'',
+    c.escalado_email ? 'Sim' : 'Não',
+    c.resposta||''
+  ].map(escape).join(';')));
+
+  const blob = new Blob(['\uFEFF' + linhas.join('\n')], { type:'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `chamados_ide_sp_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`${lista.length} chamado(s) exportado(s) em CSV.`, 'success');
+}
+</script>
+
+<script>
+  function abrirChat(protocolo) {
+    const url = protocolo
+      ? `chat.html?protocolo=${encodeURIComponent(protocolo)}`
+      : 'chat.html';
+    window.open(url, 'igc_chat',
+      'width=880,height=680,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suporte IDE-SP / SIMM | IGC – Instituto Geográfico e Cartográfico</title>
+  <meta name="description" content="Central de atendimento e suporte ao uso da IDE-SP e do SIMM pelo Instituto Geográfico e Cartográfico.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <style>
+    /* Tipo de chamado – cards selecionáveis */
+    .tipo-cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:4px; }
+    .tipo-card {
+      border:2px solid var(--igc-cinza-borda);
+      border-radius:var(--radius-md);
+      padding:14px 14px 12px;
+      cursor:pointer;
+      background:var(--igc-branco);
+      transition:var(--transition);
+      text-align:left;
+      position:relative;
+    }
+    .tipo-card:hover { border-color:var(--igc-azul-claro); background:var(--igc-azul-suave); }
+    .tipo-card.selected { border-color:var(--igc-azul-medio); background:var(--igc-azul-suave); box-shadow:0 0 0 3px rgba(0,0,0,0.12); }
+    .tipo-card .tipo-icon { font-size:20px; margin-bottom:5px; }
+    .tipo-card .tipo-nome { font-size:13.5px; font-weight:700; color:var(--igc-azul-escuro); margin-bottom:2px; }
+    .tipo-card .tipo-sla { font-size:11.5px; color:var(--igc-cinza-medio); }
+    .tipo-card .tipo-check {
+      position:absolute; top:10px; right:10px;
+      width:20px; height:20px; border-radius:50%;
+      background:var(--igc-azul-medio); color:white;
+      font-size:11px; display:none; align-items:center; justify-content:center;
+    }
+    .tipo-card.selected .tipo-check { display:flex; }
+    .tipo-card-correcao-alta .tipo-icon::before { content:'🔴'; }
+    .tipo-card-correcao-media .tipo-icon::before { content:'🟠'; }
+    .tipo-card-correcao-baixa .tipo-icon::before { content:'🟡'; }
+    .tipo-card-melhoria .tipo-icon::before { content:'🟢'; }
+
+    /* Hint dinâmico do título */
+    .titulo-hint-box {
+      background:var(--igc-azul-suave);
+      border-left:3px solid var(--igc-azul-claro);
+      border-radius:var(--radius-sm);
+      padding:8px 12px;
+      font-size:12.5px;
+      color:var(--igc-azul-escuro);
+      margin-top:6px;
+      display:none;
+    }
+    .titulo-hint-box.visible { display:block; }
+
+    /* Botão Chat na barra de navegação */
+    .nav-chat-btn {
+      font-family: var(--font-primary);
+      border: 1.5px solid var(--igc-cinza-borda);
+      background: var(--igc-cinza-bg);
+      position: relative;
+    }
+    .nav-chat-btn:hover {
+      background: var(--igc-azul-suave);
+      border-color: var(--igc-azul-claro);
+      color: var(--igc-azul-medio);
+    }
+    .nav-chat-btn i { color: var(--igc-azul-medio); }
+
+    @media(max-width:640px){
+      .tipo-cards { grid-template-columns:1fr; }
+      .main-grid { grid-template-columns:1fr !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- =================== BARRA GOV.SP =================== -->
+<div class="barra-gov" role="banner">
+  <div class="container">
+    <img src="assets/img/logo-governo-do-estado-sp.webp" alt="Governo do Estado de São Paulo" class="barra-gov-logo">
+    <span>Governo do Estado de São Paulo</span>
+    <div class="barra-links">
+      <a href="https://www.igc.sp.gov.br" target="_blank" rel="noopener">IGC</a>
+      <a href="https://www.idesp.sp.gov.br" target="_blank" rel="noopener">IDE-SP</a>
+      <a href="https://www.sp.gov.br" target="_blank" rel="noopener">SP.gov.br</a>
+    </div>
+  </div>
+</div>
+
+<!-- =================== CABEÇALHO =================== -->
+<header class="header" role="banner">
+  <div class="header-inner">
+    <div class="container">
+      <div class="header-brand">
+        <div class="header-logo-wrapper" title="Instituto Geográfico e Cartográfico de São Paulo">
+          <img src="assets/img/logo1.jpg" alt="IGC SP" class="header-logo-img">
+        </div>
+        <div class="header-divider" aria-hidden="true"></div>
+        <div class="header-info">
+          <div class="header-title">Central de Suporte IDE-SP / SIMM</div>
+          <div class="header-subtitle">Instituto Geográfico e Cartográfico de São Paulo</div>
+        </div>
+      </div>
+      <nav class="header-nav" aria-label="Navegação principal">
+        <a href="index.html" class="nav-btn active" aria-current="page">
+          <i class="fas fa-home" aria-hidden="true"></i> Início
+        </a>
+        <a href="status.html" class="nav-btn">
+          <i class="fas fa-search" aria-hidden="true"></i> Consultar Chamado
+        </a>
+        <button class="nav-btn nav-chat-btn" onclick="abrirChat()" aria-label="Abrir chat em nova janela">
+          <i class="fas fa-comments" aria-hidden="true"></i> Chat
+        </button>
+      </nav>
+      <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Menu de navegação">
+        <i class="fas fa-bars"></i> Menu
+      </button>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden" style="background:var(--igc-cinza-bg);border-top:1px solid var(--igc-cinza-borda)">
+    <div class="container" style="padding:10px 24px;display:flex;flex-direction:column;gap:4px;">
+      <a href="index.html" class="nav-btn active" style="justify-content:flex-start;"><i class="fas fa-home"></i> Início</a>
+      <a href="status.html" class="nav-btn" style="justify-content:flex-start;"><i class="fas fa-search"></i> Consultar Chamado</a>
+      <button class="nav-btn nav-chat-btn" onclick="abrirChat()" style="justify-content:flex-start;"><i class="fas fa-comments"></i> Chat</button>
+    </div>
+  </div>
+</header>
+
+<!-- =================== HERO =================== -->
+<section class="hero" aria-label="Banner principal">
+  <div class="container">
+    <div class="hero-badge"><i class="fas fa-headset"></i> Central de Atendimento</div>
+    <h1>Suporte à <strong>IDE-SP</strong> e ao <strong>SIMM</strong></h1>
+    <p>Registre correções ou melhorias relacionadas à plataforma. Nossa equipe analisa cada chamado e retorna conforme o prazo do tipo selecionado.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-lg" onclick="scrollToForm()">
+        <i class="fas fa-plus-circle"></i> Abrir Novo Chamado
+      </button>
+      <a href="status.html" class="btn btn-secondary btn-lg">
+        <i class="fas fa-search"></i> Consultar Chamado
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- =================== CONTEÚDO PRINCIPAL =================== -->
+<main class="main-content" id="mainContent">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 310px;gap:28px;" class="main-grid">
+
+      <!-- ===== FORMULÁRIO ===== -->
+      <div>
+        <!-- STEPS -->
+        <div class="steps-bar" id="stepsBar" aria-label="Progresso do formulário">
+          <div class="step active" id="step1"><div class="step-circle">1</div><div class="step-label">Identificação</div></div>
+          <div class="step-connector" id="con1"></div>
+          <div class="step" id="step2"><div class="step-circle">2</div><div class="step-label">Chamado</div></div>
+          <div class="step-connector" id="con2"></div>
+          <div class="step" id="step3"><div class="step-circle">3</div><div class="step-label">Detalhes</div></div>
+          <div class="step-connector" id="con3"></div>
+          <div class="step" id="step4"><div class="step-circle">4</div><div class="step-label">Prints</div></div>
+          <div class="step-connector" id="con4"></div>
+          <div class="step" id="step5"><div class="step-circle">5</div><div class="step-label">Revisão</div></div>
+        </div>
+
+        <div class="card" id="formCard">
+          <div class="card-header">
+            <div class="card-title"><i class="fas fa-ticket-alt"></i> Abrir Novo Chamado</div>
+            <span class="badge badge-aberto" id="formStepBadge">Passo 1 de 5</span>
+          </div>
+          <div class="card-body">
+            <form id="chamadoForm" novalidate>
+
+              <!-- ======= PASSO 1: IDENTIFICAÇÃO ======= -->
+              <div id="passo1">
+                <div class="alert alert-info mb-16">
+                  <span class="alert-icon">ℹ️</span>
+                  <div>Preencha seus dados para que possamos identificar e acompanhar seu chamado. Você receberá um <strong>número de protocolo</strong> ao finalizar.</div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="nome">Nome completo <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="nome" placeholder="Seu nome completo" required autocomplete="name">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="email">E-mail <span class="required">*</span></label>
+                    <input type="email" class="form-control" id="email" placeholder="seu@email.gov.br" required autocomplete="email">
+                    <div class="form-hint">Enviaremos atualizações do chamado para este e-mail.</div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="organizacao">Organização / Instituição</label>
+                  <input type="text" class="form-control" id="organizacao" placeholder="Ex: Prefeitura de São Paulo, Secretaria de Habitação..." autocomplete="organization">
+                </div>
+                <div class="d-flex justify-between align-center mt-24">
+                  <span class="text-small text-muted"><span class="required">*</span> Campo obrigatório</span>
+                  <button type="button" class="btn btn-primary" onclick="irParaPasso(2)">
+                    Próximo <i class="fas fa-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- ======= PASSO 2: TIPO E MÓDULO ======= -->
+              <div id="passo2" class="hidden">
+                <div class="form-group">
+                  <label class="form-label">Tipo de chamado <span class="required">*</span></label>
+                  <div class="form-hint" style="margin-bottom:10px;">Selecione o tipo que melhor descreve sua solicitação. O prazo de atendimento depende desta classificação.</div>
+                  <div class="tipo-cards" role="radiogroup" aria-label="Tipo de chamado">
+                    <button type="button" class="tipo-card tipo-card-correcao-alta" onclick="selecionarTipo('correcao_alta')" id="card_correcao_alta" role="radio" aria-checked="false">
+                      <div class="tipo-check">✓</div>
+                      <div class="tipo-icon"></div>
+                      <div class="tipo-nome">Correção – Alta Prioridade</div>
+                      <div class="tipo-sla">Prazo: 1 a 5 dias úteis</div>
+                    </button>
+                    <button type="button" class="tipo-card tipo-card-correcao-media" onclick="selecionarTipo('correcao_media')" id="card_correcao_media" role="radio" aria-checked="false">
+                      <div class="tipo-check">✓</div>
+                      <div class="tipo-icon"></div>
+                      <div class="tipo-nome">Correção – Média Prioridade</div>
+                      <div class="tipo-sla">Prazo: 6 a 10 dias úteis</div>
+                    </button>
+                    <button type="button" class="tipo-card tipo-card-correcao-baixa" onclick="selecionarTipo('correcao_baixa')" id="card_correcao_baixa" role="radio" aria-checked="false">
+                      <div class="tipo-check">✓</div>
+                      <div class="tipo-icon"></div>
+                      <div class="tipo-nome">Correção – Baixa Prioridade</div>
+                      <div class="tipo-sla">Prazo: próxima sprint</div>
+                    </button>
+                    <button type="button" class="tipo-card tipo-card-melhoria" onclick="selecionarTipo('melhoria')" id="card_melhoria" role="radio" aria-checked="false">
+                      <div class="tipo-check">✓</div>
+                      <div class="tipo-icon"></div>
+                      <div class="tipo-nome">Melhoria</div>
+                      <div class="tipo-sla">Prazo: próxima sprint</div>
+                    </button>
+                  </div>
+                  <input type="hidden" id="tipo_chamado" value="">
+                </div>
+
+                <div class="form-row" style="margin-top:20px;">
+                  <div class="form-group">
+                    <label class="form-label" for="modulo">Módulo <span class="required">*</span></label>
+                    <select class="form-control" id="modulo" required>
+                      <option value="">Selecione o módulo...</option>
+                      <option value="SIMM-HAB">SIMM-HAB</option>
+                      <option value="SIMM-MUN">SIMM-MUN</option>
+                      <option value="SIMM-GRAPROHAB">SIMM-GRAPROHAB</option>
+                      <option value="SIMM-CONDEPHAAT">SIMM-CONDEPHAAT</option>
+                      <option value="SIMM-BP">SIMM-BP</option>
+                      <option value="SIMM-CIDURB">SIMM-CIDURB</option>
+                      <option value="SIMM-PD">SIMM-PD</option>
+                      <option value="Geral (sistema)">Geral (sistema)</option>
+                      <option value="Outro">Outro</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="tipo_usuario">Tipo de usuário afetado <span class="required">*</span></label>
+                    <select class="form-control" id="tipo_usuario" required>
+                      <option value="">Selecione o tipo de usuário...</option>
+                      <option value="Administrador">Administrador</option>
+                      <option value="Gestor">Gestor</option>
+                      <option value="Editor">Editor</option>
+                      <option value="Publicador">Publicador</option>
+                      <option value="Visualizador">Visualizador</option>
+                      <option value="Todos">Todos</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="tela">Tela onde ocorre o problema / melhoria <span class="required">*</span></label>
+                  <select class="form-control" id="tela" required>
+                    <option value="">Selecione a tela...</option>
+                    <option value="BUSCA DE CONTEXTO">BUSCA DE CONTEXTO</option>
+                    <option value="VISUALIZADOR DO CONTEXTO">VISUALIZADOR DO CONTEXTO</option>
+                    <option value="GERENCIAR USUÁRIOS">GERENCIAR USUÁRIOS</option>
+                    <option value="EDITAR USUÁRIO">EDITAR USUÁRIO</option>
+                    <option value="GERENCIAR GRUPOS">GERENCIAR GRUPOS</option>
+                    <option value="GERENCIAR ÁREAS DE RESTRIÇÃO">GERENCIAR ÁREAS DE RESTRIÇÃO</option>
+                    <option value="SUAS CAMADAS">SUAS CAMADAS</option>
+                    <option value="ASSOCIAÇÕES DA CAMADA">ASSOCIAÇÕES DA CAMADA</option>
+                    <option value="CARGA DE DADOS">CARGA DE DADOS</option>
+                    <option value="RELATÓRIOS">RELATÓRIOS</option>
+                    <option value="DOCUMENTOS">DOCUMENTOS</option>
+                    <option value="OUTRO">OUTRO</option>
+                    <option value="NOVA TELA">NOVA TELA (sugestão de nova tela)</option>
+                  </select>
+                </div>
+
+                <div class="d-flex justify-between align-center mt-24">
+                  <button type="button" class="btn btn-ghost" onclick="irParaPasso(1)">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                  </button>
+                  <button type="button" class="btn btn-primary" onclick="irParaPasso(3)">
+                    Próximo <i class="fas fa-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- ======= PASSO 3: TÍTULO, DESCRIÇÃO E COMPORTAMENTO ======= -->
+              <div id="passo3" class="hidden">
+                <div class="form-group">
+                  <label class="form-label" for="titulo">Título <span class="required">*</span></label>
+                  <div class="titulo-hint-box" id="tituloHintBox"></div>
+                  <input type="text" class="form-control" id="titulo" placeholder="Descreva brevemente o problema ou melhoria" required maxlength="140" style="margin-top:8px;">
+                  <div class="form-hint"><span id="tituloCount">0</span>/140 caracteres</div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="descricao">Descrição detalhada <span class="required">*</span></label>
+                  <textarea class="form-control" id="descricao" rows="5"
+                    placeholder="Descreva o que acontece com o máximo de detalhes:
+• O que você estava tentando fazer?
+• O que aconteceu / qual mensagem de erro apareceu?
+• Quando o problema começou?
+• Com qual frequência ocorre?
+• Qual navegador e sistema operacional você usa?" required minlength="20"></textarea>
+                  <div class="form-hint">Mínimo 20 caracteres. <span id="descCount">0</span> digitados.</div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="comportamento_esperado">Qual o comportamento esperado?</label>
+                  <div class="alert alert-info" style="padding:10px 14px;margin-bottom:8px;font-size:13px;">
+                    <span class="alert-icon" style="font-size:14px;">💡</span>
+                    <div>Descreva, em etapas, o que deveria acontecer quando a funcionalidade estivesse funcionando corretamente.<br>
+                    <em style="color:var(--igc-cinza-medio);">Ex: 1. Como gestor, ao clicar em "Editar Grupo", a lista de usuários deve aparecer. 2. Ao clicar no nome, o sistema me direciona à edição do usuário.</em></div>
+                  </div>
+                  <textarea class="form-control" id="comportamento_esperado" rows="4"
+                    placeholder="1. Como [tipo de usuário], ao [ação], o sistema deve [resultado]...
+2. ..."></textarea>
+                </div>
+
+                <div class="d-flex justify-between align-center mt-24">
+                  <button type="button" class="btn btn-ghost" onclick="irParaPasso(2)">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                  </button>
+                  <button type="button" class="btn btn-primary" onclick="irParaPasso(4)">
+                    Próximo <i class="fas fa-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- ======= PASSO 4: PRINTS ======= -->
+              <div id="passo4" class="hidden">
+                <div class="alert alert-info mb-16">
+                  <span class="alert-icon">📸</span>
+                  <div>Anexe capturas de tela do problema. Prints ajudam muito na análise e agilizam a resolução. <strong>Até 5 imagens, máx. 5MB cada.</strong></div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Capturas de tela (opcional)</label>
+                  <div class="upload-area" id="uploadArea"
+                    ondragover="event.preventDefault();this.classList.add('dragover');"
+                    ondragleave="this.classList.remove('dragover');"
+                    ondrop="handleDrop(event)"
+                    onclick="document.getElementById('fileInput').click()"
+                    role="button" tabindex="0"
+                    aria-label="Clique ou arraste imagens"
+                    onkeypress="if(event.key==='Enter')document.getElementById('fileInput').click()">
+                    <span class="upload-icon">📁</span>
+                    <p><strong>Clique aqui</strong> ou arraste as imagens para esta área</p>
+                    <p style="margin-top:4px;font-size:11px;">PNG, JPG, GIF, WEBP – Máximo 5MB por imagem – Até 5 arquivos</p>
+                  </div>
+                  <input type="file" id="fileInput" multiple accept="image/*" style="display:none" onchange="handleFileSelect(event)">
+                  <div class="uploads-preview" id="uploadsPreview"></div>
+                </div>
+                <div class="d-flex justify-between align-center mt-24">
+                  <button type="button" class="btn btn-ghost" onclick="irParaPasso(3)">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                  </button>
+                  <button type="button" class="btn btn-primary" onclick="irParaPasso(5)">
+                    Revisar Chamado <i class="fas fa-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- ======= PASSO 5: REVISÃO ======= -->
+              <div id="passo5" class="hidden">
+                <div class="alert alert-warning mb-16">
+                  <span class="alert-icon">👁️</span>
+                  <div>Revise as informações antes de enviar. Após o envio você receberá o número do protocolo.</div>
+                </div>
+                <div id="revisaoConteudo"></div>
+                <div class="d-flex justify-between align-center mt-24">
+                  <button type="button" class="btn btn-ghost" onclick="irParaPasso(4)">
+                    <i class="fas fa-arrow-left"></i> Voltar e Editar
+                  </button>
+                  <button type="submit" class="btn btn-success btn-lg" id="btnEnviar">
+                    <i class="fas fa-paper-plane"></i> Enviar Chamado
+                  </button>
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <!-- PROTOCOLO (após envio) -->
+        <div class="card hidden" id="protocoloCard">
+          <div class="card-body" style="padding:36px 24px;">
+            <div style="text-align:center;margin-bottom:20px;">
+              <div style="font-size:56px;">✅</div>
+              <h2 style="font-size:22px;font-weight:700;color:var(--igc-verde-sp);margin-top:8px;">Chamado aberto com sucesso!</h2>
+              <p style="color:var(--igc-cinza-medio);font-size:14px;margin-top:6px;">Guarde o número de protocolo abaixo para acompanhar seu atendimento.</p>
+            </div>
+            <div class="protocolo-box">
+              <div class="protocolo-label">Número de Protocolo</div>
+              <div class="protocolo-number" id="protocoloNum">—</div>
+              <div class="protocolo-hint"><i class="fas fa-info-circle"></i> Use este código para consultar o status do seu chamado</div>
+            </div>
+            <div id="avisoSheetsOk" class="hidden" style="margin-top:14px;">
+              <div class="alert alert-success" style="justify-content:center;text-align:center;">
+                <span class="alert-icon">📊</span>
+                <div>Chamado registrado na planilha de controle do projeto.</div>
+              </div>
+            </div>
+            <div id="avisoSheetsErro" class="hidden" style="margin-top:14px;">
+              <div class="alert alert-warning">
+                <span class="alert-icon">⚠️</span>
+                <div>O chamado foi salvo no sistema, mas não foi possível registrar na planilha automaticamente. A equipe IGC realizará o registro manualmente.</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
+              <a href="status.html" class="btn btn-primary"><i class="fas fa-search"></i> Acompanhar Chamado</a>
+              <button class="btn btn-ghost" onclick="novoChamado()"><i class="fas fa-plus"></i> Novo Chamado</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SIDEBAR ===== -->
+      <aside>
+        <!-- CONSULTA RÁPIDA -->
+        <div class="card mb-16">
+          <div class="card-header">
+            <div class="card-title" style="font-size:14px;"><i class="fas fa-search"></i> Consultar Chamado</div>
+          </div>
+          <div class="card-body">
+            <p style="font-size:13px;color:var(--igc-cinza-medio);margin-bottom:12px;">Digite o número do protocolo ou e-mail cadastrado.</p>
+            <div class="form-group">
+              <input type="text" class="form-control" id="buscaRapida" placeholder="Ex: IGC-2025-0001" aria-label="Número do protocolo">
+            </div>
+            <button class="btn btn-primary w-full" onclick="consultarRapido()"><i class="fas fa-search"></i> Buscar</button>
+          </div>
+        </div>
+
+        <!-- PRAZOS POR TIPO -->
+        <div class="card mb-16">
+          <div class="card-header">
+            <div class="card-title" style="font-size:14px;"><i class="fas fa-clock"></i> Prazos de Atendimento</div>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="padding:9px 12px;background:var(--igc-vermelho-claro);border-radius:var(--radius-md);border-left:3px solid var(--igc-vermelho);">
+                <div style="font-size:12.5px;font-weight:700;color:var(--igc-vermelho);">🔴 Correção Alta Prioridade</div>
+                <div style="font-size:12px;color:var(--igc-cinza-medio);margin-top:2px;">1 a 5 dias úteis</div>
+              </div>
+              <div style="padding:9px 12px;background:#fff3e0;border-radius:var(--radius-md);border-left:3px solid #e65100;">
+                <div style="font-size:12.5px;font-weight:700;color:#e65100;">🟠 Correção Média Prioridade</div>
+                <div style="font-size:12px;color:var(--igc-cinza-medio);margin-top:2px;">6 a 10 dias úteis</div>
+              </div>
+              <div style="padding:9px 12px;background:var(--igc-amarelo-claro);border-radius:var(--radius-md);border-left:3px solid var(--igc-amarelo);">
+                <div style="font-size:12.5px;font-weight:700;color:#5d4037;">🟡 Correção Baixa Prioridade</div>
+                <div style="font-size:12px;color:var(--igc-cinza-medio);margin-top:2px;">Próxima sprint</div>
+              </div>
+              <div style="padding:9px 12px;background:var(--igc-verde-claro);border-radius:var(--radius-md);border-left:3px solid var(--igc-verde-sp);">
+                <div style="font-size:12.5px;font-weight:700;color:var(--igc-verde-sp);">🟢 Melhoria</div>
+                <div style="font-size:12px;color:var(--igc-cinza-medio);margin-top:2px;">Próxima sprint</div>
+              </div>
+            </div>
+            <p style="font-size:11.5px;color:var(--igc-cinza-claro);margin-top:12px;">
+              <i class="fas fa-info-circle"></i> A equipe IGC poderá reclassificar o chamado após triagem. O novo tipo ficará visível no acompanhamento.
+            </p>
+          </div>
+        </div>
+
+        <!-- OUTROS CONTATOS -->
+        <div class="card mb-16" style="border:1.5px solid #ffe082;">
+          <div class="card-header" style="background:#fffde7;border-bottom:1px solid #ffe082;">
+            <div class="card-title" style="font-size:14px;color:#5d4037;">
+              <i class="fas fa-envelope" style="color:#f57f17;"></i> Outros Assuntos
+            </div>
+          </div>
+          <div class="card-body" style="padding:14px 16px;">
+            <p style="font-size:13px;color:#5d4037;line-height:1.6;margin-bottom:12px;">
+              Tem outro assunto ou dúvida que <strong>não tem a ver com a plataforma IDE-SP ou SIMM</strong>? Use os e-mails abaixo — são canais específicos para outras necessidades:
+            </p>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="padding:10px 12px;background:#fffde7;border-radius:var(--radius-md);border:1px solid #ffe082;">
+                <div style="font-size:11.5px;font-weight:700;color:#5d4037;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px;">Produtos específicos do IGC</div>
+                <a href="mailto:atendimentoigc@sp.gov.br" style="font-size:13px;color:var(--igc-azul-medio);font-weight:500;">
+                  <i class="fas fa-envelope" style="font-size:11px;"></i> atendimentoigc@sp.gov.br
+                </a>
+              </div>
+              <div style="padding:10px 12px;background:#fffde7;border-radius:var(--radius-md);border:1px solid #ffe082;">
+                <div style="font-size:11.5px;font-weight:700;color:#5d4037;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px;">Outros assuntos entre municípios e IGC</div>
+                <a href="mailto:municipios.igc@sp.gov.br" style="font-size:13px;color:var(--igc-azul-medio);font-weight:500;">
+                  <i class="fas fa-envelope" style="font-size:11px;"></i> municipios.igc@sp.gov.br
+                </a>
+              </div>
+            </div>
+            <p style="font-size:11.5px;color:var(--igc-cinza-claro);margin-top:10px;">
+              <i class="fas fa-info-circle"></i> Estes e-mails são exclusivamente para demandas <strong>fora</strong> das plataformas IDE-SP e SIMM.
+            </p>
+          </div>
+        </div>
+
+        <!-- Integração Google Sheets agora é via API (server-side) - sem necessidade de configuração manual -->
+      </aside>
+    </div>
+  </div>
+</main>
+
+<!-- =================== FOOTER =================== -->
+<footer role="contentinfo">
+  <div class="container">
+    <div>
+      <span class="footer-brand">IGC – Instituto Geográfico e Cartográfico</span><br>
+      <span>Av. Prof. Lineu Prestes, 913, Cidade Universitária – São Paulo/SP – CEP 05508-000</span>
+    </div>
+    <div style="text-align:right;">
+      <div>Sistema de Suporte IDE-SP/SIMM &copy; <span id="anoFooter"></span></div>
+      <div style="margin-top:4px;">
+        <a href="https://www.idesp.sp.gov.br" target="_blank" rel="noopener">Portal IDE-SP</a> &nbsp;|&nbsp;
+        <a href="https://www.igc.sp.gov.br" target="_blank" rel="noopener">Site IGC</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()" role="dialog" aria-label="Visualizador de imagem">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fechar">✕</button>
+  <img src="" id="lightboxImg" alt="Captura de tela ampliada">
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/sheets.js"></script>
+<script>
+  document.getElementById('anoFooter').textContent = new Date().getFullYear();
+
+
+
+  function scrollToForm() {
+    document.getElementById('mainContent').scrollIntoView({ behavior:'smooth' });
+  }
+
+  function abrirChat(protocolo) {
+    const url = protocolo
+      ? `chat.html?protocolo=${encodeURIComponent(protocolo)}`
+      : 'chat.html';
+    window.open(url, 'igc_chat',
+      'width=880,height=680,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no');
+  }
+
+  function toggleMobileMenu() {
+    document.getElementById('mobileMenu').classList.toggle('hidden');
+  }
+
+  function consultarRapido() {
+    const val = document.getElementById('buscaRapida').value.trim();
+    if (!val) { showToast('Digite o número do protocolo.', 'warning'); return; }
+    window.location.href = `status.html?protocolo=${encodeURIComponent(val)}`;
+  }
+
+  document.getElementById('buscaRapida').addEventListener('keydown', e => {
+    if (e.key === 'Enter') consultarRapido();
+  });
+</script>
+</body>
+</html>

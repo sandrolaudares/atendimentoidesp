@@ -1,0 +1,13 @@
+{
+  "name": "atendimento-idesp",
+  "version": "1.0.0",
+  "description": "Sistema de Atendimento IGC/IDE-SP",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "googleapis": "^137.1.0"
+  }
+}
